@@ -1,103 +1,162 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState } from 'react';
+import {
+  DndContext,
+  DragEndEvent, 
+  DragStartEvent,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+} from '@dnd-kit/core';
+import { 
+  SortableContext, 
+  arrayMove, 
+  sortableKeyboardCoordinates 
+} from '@dnd-kit/sortable';
+
+import Header from '@/components/Header';
+import SongBank from '@/components/SongBank';
+import Setlist from '@/components/Setlist';
+import { SongType } from '@/components/Song';
+
+// Sample data for demonstration
+const ARTIST_NAME = 'Taylor Swift';
+const CONCERT_DATE = 'June 15, 2025';
+const CONCERT_VENUE = 'Madison Square Garden, NYC';
+
+const SAMPLE_SONGS: SongType[] = [
+  { id: '1', title: 'Cruel Summer', artist: ARTIST_NAME, duration: '2:58' },
+  { id: '2', title: 'Love Story', artist: ARTIST_NAME, duration: '3:55' },
+  { id: '3', title: 'Blank Space', artist: ARTIST_NAME, duration: '3:51' },
+  { id: '4', title: 'Shake It Off', artist: ARTIST_NAME, duration: '3:39' },
+  { id: '5', title: 'Anti-Hero', artist: ARTIST_NAME, duration: '3:20' },
+  { id: '6', title: 'You Belong With Me', artist: ARTIST_NAME, duration: '3:52' },
+  { id: '7', title: 'Cardigan', artist: ARTIST_NAME, duration: '3:59' },
+  { id: '8', title: 'All Too Well', artist: ARTIST_NAME, duration: '5:29' },
+  { id: '9', title: 'The Man', artist: ARTIST_NAME, duration: '3:10' },
+  { id: '10', title: 'Bad Blood', artist: ARTIST_NAME, duration: '3:31' },
+  { id: '11', title: 'Wildest Dreams', artist: ARTIST_NAME, duration: '3:40' },
+  { id: '12', title: 'Delicate', artist: ARTIST_NAME, duration: '3:52' },
+  { id: '13', title: 'Enchanted', artist: ARTIST_NAME, duration: '5:53' },
+  { id: '14', title: 'Style', artist: ARTIST_NAME, duration: '3:51' },
+  { id: '15', title: 'Lover', artist: ARTIST_NAME, duration: '3:41' },
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [items, setItems] = useState(SAMPLE_SONGS);
+  const [setlistIds, setSetlistIds] = useState<string[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  // Available items are all items that aren't in the setlist
+  const bankItems = items.filter(item => !setlistIds.includes(item.id));
+
+  // Configure sensors for drag detection
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      // Very basic configuration - minimal distance
+      activationConstraint: {
+        distance: 1,
+      }
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    // Add dragging class to body for visual feedback
+    document.body.classList.add('is-dragging');
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    document.body.classList.remove('is-dragging');
+    
+    const { active, over } = event;
+    
+    if (!over) return;
+    
+    const activeId = active.id.toString();
+    const overId = over.id.toString();
+    
+    // Handle dropping on containers
+    if (overId === 'setlist-container') {
+      // Only add if not already in setlist
+      if (!setlistIds.includes(activeId)) {
+        setSetlistIds(prev => [...prev, activeId]);
+      }
+      return;
+    }
+    
+    if (overId === 'bank-container') {
+      // Remove from setlist if it's there
+      setSetlistIds(prev => prev.filter(id => id !== activeId));
+      return;
+    }
+    
+    // Handle reordering within setlist
+    if (setlistIds.includes(activeId) && setlistIds.includes(overId)) {
+      const oldIndex = setlistIds.indexOf(activeId);
+      const newIndex = setlistIds.indexOf(overId);
+      
+      if (oldIndex !== newIndex) {
+        setSetlistIds(items => arrayMove(items, oldIndex, newIndex));
+      }
+    }
+    
+    // Handle moving from bank to setlist by dropping on a setlist item
+    if (!setlistIds.includes(activeId) && setlistIds.includes(overId)) {
+      // Insert at position of target item
+      const newIndex = setlistIds.indexOf(overId);
+      const newSetlist = [...setlistIds];
+      newSetlist.splice(newIndex, 0, activeId);
+      setSetlistIds(newSetlist);
+    }
+    
+    // Handle moving from setlist to bank (dropping on bank item)
+    if (setlistIds.includes(activeId) && !setlistIds.includes(overId)) {
+      // Remove from setlist
+      setSetlistIds(prev => prev.filter(id => id !== activeId));
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      <Header 
+        artistName={ARTIST_NAME} 
+        concertDate={CONCERT_DATE} 
+        concertVenue={CONCERT_VENUE} 
+      />
+      
+      <main className="flex-1 p-4 md:p-6">
+        <div className="container mx-auto max-w-6xl">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ minHeight: "calc(100vh - 200px)" }}>
+              <div className="bg-white rounded-lg shadow-md overflow-hidden h-full">
+                <SongBank songs={items} bankItems={bankItems} />
+              </div>
+              
+              <div className="overflow-hidden rounded-lg shadow-md h-full">
+                <Setlist 
+                  setlistIds={setlistIds} 
+                  allSongs={items} 
+                />
+              </div>
+            </div>
+          </DndContext>
+          
+          <div className="mt-8 text-center text-gray-500 text-sm">
+            <p>Drag songs from the bank to create your perfect setlist</p>
+            <p className="mt-1">Share your setlist with friends and the artist!</p>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }

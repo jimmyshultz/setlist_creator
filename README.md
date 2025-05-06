@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Setlist Creator
+
+A responsive web application for fans to help artists select and arrange songs for upcoming concerts. Built with Next.js, TypeScript, and Tailwind CSS.
+
+## Features
+
+- **Responsive Design**: Works seamlessly on both desktop and mobile devices
+- **Paper-themed Background**: Setlist appears on a paper-like background for a realistic feel
+- **Drag and Drop Interface**: Intuitive drag and drop functionality to create and arrange setlists
+- **Song Bank**: Browse available songs to add to the setlist
+- **Real-time Updates**: See the total duration and song count as you build your setlist
+- **Modern UI**: Clean, modern interface with smooth animations
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18.0 or later
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/setlist-creator.git
+cd setlist-creator
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Browse the available songs in the Song Bank
+2. Drag songs from the bank to the setlist on the right
+3. Rearrange songs in your setlist by dragging them
+4. Remove songs from your setlist by dragging them back to the song bank
 
-## Learn More
+## Customization
 
-To learn more about Next.js, take a look at the following resources:
+You can easily customize the application by:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Modifying the artist name, concert date, and venue in the `page.tsx` file
+- Adding your own songs to the `SAMPLE_SONGS` array in `page.tsx`
+- Changing the styling in the CSS files and component classes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Technologies Used
 
-## Deploy on Vercel
+- **Next.js**: React framework for server-rendered applications
+- **TypeScript**: Type-safe JavaScript
+- **Tailwind CSS**: Utility-first CSS framework
+- **dnd-kit**: Modern drag and drop library for React
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- [dnd-kit](https://dndkit.com/) for the drag and drop functionality
+- [Tailwind CSS](https://tailwindcss.com/) for the styling
+- [Next.js](https://nextjs.org/) for the application framework
