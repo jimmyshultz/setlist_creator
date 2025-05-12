@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import {
   DndContext,
   DragEndEvent, 
@@ -32,7 +32,20 @@ import {
 // Default maximum number of songs allowed if not specified in the data
 const DEFAULT_MAX_SETLIST_SONGS = 7;
 
-export default function Home() {
+// Loading component to use as fallback
+function Loading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
+        <p className="text-gray-700">Loading setlist creator...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main content component that uses useSearchParams
+function MainContent() {
   // Get URL parameters
   const searchParams = useSearchParams();
   
@@ -333,5 +346,14 @@ export default function Home() {
         colorTheme={colorTheme}
       />
     </div>
+  );
+}
+
+// Main export with Suspense
+export default function Home() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <MainContent />
+    </Suspense>
   );
 }
