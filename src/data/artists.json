@@ -1,6 +1,43 @@
 {
   "artists": [
     {
+        "id": "gabrielle-grace",
+        "name": "Gabrielle Grace",
+        "colorTheme": {
+          "primary": "from-[hsl(199,41%,52%)] to-[hsl(199,41%,42%)]",
+          "secondary": "blue-500",
+          "accent": "cyan-600"
+        },
+        "shows": [
+          {
+            "id": "gabrielle-grace-summer-tour",
+            "date": "June 10th-21st, 2025",
+            "venue": "Knitting Factory, Spokane",
+            "tourName": "Summer Tour",
+            "maxSongs": 7,
+            "songs": [
+              { "id": "46", "title": "We'll Be Alright", "artist": "Gabrielle Grace", "duration": "3:20" },
+              { "id": "47", "title": "Don't You Give Up", "artist": "Gabrielle Grace", "duration": "3:50" },
+              { "id": "48", "title": "pink skies", "artist": "Gabrielle Grace", "duration": "3:35" },
+              { "id": "49", "title": "Never Knew You", "artist": "Gabrielle Grace", "duration": "4:20" },
+              { "id": "50", "title": "losing it", "artist": "Gabrielle Grace", "duration": "3:41" },
+              { "id": "51", "title": "it's not that i hate you", "artist": "Gabrielle Grace", "duration": "3:33" },
+              { "id": "52", "title": "Two Sides", "artist": "Gabrielle Grace", "duration": "6:01" },
+              { "id": "53", "title": "Both Ways", "artist": "Gabrielle Grace", "duration": "3:21" },
+              { "id": "54", "title": "I Wish That I Could Tell You", "artist": "Gabrielle Grace", "duration": "4:09" },
+              { "id": "55", "title": "Lost Somebody Else", "artist": "Gabrielle Grace", "duration": "4:37" },
+              { "id": "56", "title": "This One's For The Girls", "artist": "Gabrielle Grace", "duration": "3:57" },
+              { "id": "57", "title": "Hollywood Rodeo", "artist": "Gabrielle Grace", "duration": "3:40" },
+              { "id": "58", "title": "Want You Bad Anyway", "artist": "Gabrielle Grace", "duration": "3:57" },
+              { "id": "59", "title": "Could It Be Me", "artist": "Gabrielle Grace", "duration": "3:40" },
+              { "id": "60", "title": "Are You Feeling Good?", "artist": "Gabrielle Grace", "duration": "3:40" },
+              { "id": "61", "title": "Good Without The Bad", "artist": "Gabrielle Grace", "duration": "3:57" },
+              { "id": "62", "title": "Wayward Safety", "artist": "Gabrielle Grace", "duration": "3:40" }
+            ]
+          }
+        ]
+      },
+    {
       "id": "taylor-swift",
       "name": "Taylor Swift",
       "colorTheme": {
@@ -115,43 +152,6 @@
           ]
         }
       ]
-    },
-    {
-        "id": "gabrielle-grace",
-        "name": "Gabrielle Grace",
-        "colorTheme": {
-          "primary": "from-[hsl(199,41%,52%)] to-[hsl(199,41%,42%)]",
-          "secondary": "blue-500",
-          "accent": "cyan-600"
-        },
-        "shows": [
-          {
-            "id": "gabrielle-grace-summer-tour",
-            "date": "June 10th-21st, 2025",
-            "venue": "Knitting Factory, Spokane",
-            "tourName": "Summer Tour",
-            "maxSongs": 7,
-            "songs": [
-              { "id": "46", "title": "We'll Be Alright", "artist": "Gabrielle Grace", "duration": "3:20" },
-              { "id": "47", "title": "Don't You Give Up", "artist": "Gabrielle Grace", "duration": "3:50" },
-              { "id": "48", "title": "pink skies", "artist": "Gabrielle Grace", "duration": "3:35" },
-              { "id": "49", "title": "Never Knew You", "artist": "Gabrielle Grace", "duration": "4:20" },
-              { "id": "50", "title": "losing it", "artist": "Gabrielle Grace", "duration": "3:41" },
-              { "id": "51", "title": "it's not that i hate you", "artist": "Gabrielle Grace", "duration": "3:33" },
-              { "id": "52", "title": "Two Sides", "artist": "Gabrielle Grace", "duration": "6:01" },
-              { "id": "53", "title": "Both Ways", "artist": "Gabrielle Grace", "duration": "3:21" },
-              { "id": "54", "title": "I Wish That I Could Tell You", "artist": "Gabrielle Grace", "duration": "4:09" },
-              { "id": "55", "title": "Lost Somebody Else", "artist": "Gabrielle Grace", "duration": "4:37" },
-              { "id": "56", "title": "This One's For The Girls", "artist": "Gabrielle Grace", "duration": "3:57" },
-              { "id": "57", "title": "Hollywood Rodeo", "artist": "Gabrielle Grace", "duration": "3:40" },
-              { "id": "58", "title": "Want You Bad Anyway", "artist": "Gabrielle Grace", "duration": "3:57" },
-              { "id": "59", "title": "Could It Be Me", "artist": "Gabrielle Grace", "duration": "3:40" },
-              { "id": "60", "title": "Are You Feeling Good?", "artist": "Gabrielle Grace", "duration": "3:40" },
-              { "id": "61", "title": "Good Without The Bad", "artist": "Gabrielle Grace", "duration": "3:57" },
-              { "id": "62", "title": "Wayward Safety", "artist": "Gabrielle Grace", "duration": "3:40" }
-            ]
-          }
-        ]
-      }
+    }
   ]
 } 

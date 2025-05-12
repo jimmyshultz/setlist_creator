@@ -275,6 +275,7 @@ export default function Home() {
                   songs={items} 
                   bankItems={bankItems} 
                   isSetlistFull={isSetlistFull}
+                  maxSongs={maxSongs}
                 />
               </div>
               

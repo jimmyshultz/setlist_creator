@@ -7,9 +7,10 @@ interface SongBankProps {
   songs: SongType[];
   bankItems: SongType[]; // Available songs that aren't in the setlist
   isSetlistFull?: boolean;
+  maxSongs: number; // Maximum number of songs allowed in the setlist
 }
 
-export default function SongBank({ songs, bankItems, isSetlistFull = false }: SongBankProps) {
+export default function SongBank({ songs, bankItems, isSetlistFull = false, maxSongs }: SongBankProps) {
   const { setNodeRef, isOver } = useDroppable({ 
     id: 'bank-container',
   });
@@ -47,7 +48,7 @@ export default function SongBank({ songs, bankItems, isSetlistFull = false }: So
             <div className="space-y-2">
               {isSetlistFull && (
                 <div className="mb-4 p-3 bg-yellow-50 rounded-md text-yellow-700 text-sm">
-                  <p>Your setlist is full with 7 songs.</p>
+                  <p>Your setlist is full with {maxSongs} songs.</p>
                   <p>You can drag songs back here if you want to swap them.</p>
                 </div>
               )}
