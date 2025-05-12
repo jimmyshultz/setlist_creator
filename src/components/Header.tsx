@@ -1,58 +1,109 @@
 import React from 'react';
+import { ColorTheme } from '@/utils/artistDataHelper';
 
 interface HeaderProps {
   artistName: string;
-  concertDate?: string;
-  concertVenue?: string;
+  concertDate: string;
+  concertVenue: string;
   tourName?: string;
+  colorTheme: ColorTheme;
 }
 
-export default function Header({ artistName, concertDate, concertVenue, tourName }: HeaderProps) {
-  // Check if the date is a range (contains a hyphen)
-  const isDateRange = concertDate?.includes('-');
+const Header: React.FC<HeaderProps> = ({ 
+  artistName, 
+  concertDate, 
+  concertVenue,
+  tourName,
+  colorTheme
+}) => {
+  // Check if date contains a range (indicated by presence of a hyphen)
+  const isDateRange = concertDate.includes('-');
   
+  // Determine what to display as the subtitle
+  const displayLocation = isDateRange ? tourName : concertVenue;
+  
+  // Check if we need to use inline styles for custom HSL colors
+  const usesCustomColors = colorTheme?.primary?.includes('[hsl');
+  
+  // Extract color values from the colorTheme for inline styling
+  const getPrimaryGradient = () => {
+    if (!colorTheme?.primary) {
+      return 'linear-gradient(to right, #4f46e5, #9333ea)'; // Default gradient
+    }
+    
+    const colors = colorTheme.primary.split(' ');
+    const fromColor = colors.find(c => c.startsWith('from-'))?.replace('from-', '');
+    const toColor = colors.find(c => c.startsWith('to-'))?.replace('to-', '');
+    
+    if (!fromColor || !toColor) {
+      return 'linear-gradient(to right, #4f46e5, #9333ea)'; // Default gradient
+    }
+    
+    // Default colors
+    let fromHex = '#4f46e5'; // indigo-600
+    let toHex = '#9333ea';   // purple-600
+    
+    // Convert tailwind class names to actual colors
+    if (fromColor.startsWith('[') && fromColor.endsWith(']')) {
+      // Handle custom colors like [hsl(199,41%,52%)]
+      fromHex = fromColor.substring(1, fromColor.length - 1);
+    } else if (fromColor === 'red-500') {
+      fromHex = '#ef4444';
+    } else if (fromColor === 'gray-900') {
+      fromHex = '#111827';
+    } else if (fromColor === 'yellow-600') {
+      fromHex = '#ca8a04';
+    }
+    
+    if (toColor.startsWith('[') && toColor.endsWith(']')) {
+      // Handle custom colors like [hsl(199,41%,42%)]
+      toHex = toColor.substring(1, toColor.length - 1);
+    } else if (toColor === 'pink-600') {
+      toHex = '#db2777';
+    } else if (toColor === 'red-900') {
+      toHex = '#7f1d1d';
+    } else if (toColor === 'yellow-800') {
+      toHex = '#854d0e';
+    } else if (toColor === 'purple-600') {
+      toHex = '#9333ea';
+    }
+    
+    return `linear-gradient(to right, ${fromHex}, ${toHex})`;
+  };
+  
+  // Function to get the gradient classes for non-custom colors
+  const getGradientClasses = () => {
+    // Check if the primary class is valid
+    if (!colorTheme?.primary) {
+      return 'from-indigo-600 to-purple-600'; // Default gradient
+    }
+    return colorTheme.primary;
+  };
+
   return (
-    <header className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 md:p-6">
-      <div className="container mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold">Make {artistName}'s Setlist</h1>
+    <header 
+      className={!usesCustomColors ? `bg-gradient-to-r ${getGradientClasses()} text-white py-8 shadow-md` : 'text-white py-8 shadow-md'}
+      style={usesCustomColors ? { background: getPrimaryGradient() } : undefined}
+    >
+      <div className="container mx-auto px-4 flex flex-col items-center text-center">
+        <h1 className="text-3xl md:text-4xl font-bold mb-4">
+          Make {artistName}&apos;s Setlist
+        </h1>
         
-        {(concertDate || (concertVenue && !isDateRange) || tourName) && (
-          <div className="mt-2 flex flex-col sm:flex-row sm:items-center sm:gap-2">
-            {concertDate && (
-              <div className="flex items-center text-white/80">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span className="text-sm">{concertDate}</span>
-              </div>
-            )}
-            
-            {/* Only show venue for single dates, not for date ranges */}
-            {concertVenue && !isDateRange && (
-              <div className="flex items-center text-white/80">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span className="text-sm">{concertVenue}</span>
-              </div>
-            )}
-            
-            {tourName && (
-              <div className="flex items-center text-white/80">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-                <span className="text-sm">{tourName}</span>
-              </div>
-            )}
-          </div>
-        )}
-        
-        <p className="mt-2 text-white/70 text-sm">
-          Let them know what songs you want to hear on tour
-        </p>
+        <div className="flex flex-col items-center space-y-2">
+          <p className="text-lg font-medium">
+            {concertDate}
+          </p>
+          
+          {displayLocation && (
+            <p className="text-md opacity-90">
+              {displayLocation}
+            </p>
+          )}
+        </div>
       </div>
     </header>
   );
-} 
+};
+
+export default Header; 

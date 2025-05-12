@@ -3,6 +3,11 @@
     {
       "id": "taylor-swift",
       "name": "Taylor Swift",
+      "colorTheme": {
+        "primary": "from-red-500 to-pink-600",
+        "secondary": "red-600",
+        "accent": "pink-500"
+      },
       "shows": [
         {
           "id": "taylor-nyc-2025",
@@ -51,6 +56,11 @@
     {
       "id": "the-weeknd",
       "name": "The Weeknd",
+      "colorTheme": {
+        "primary": "from-gray-900 to-red-900",
+        "secondary": "red-700",
+        "accent": "gray-800"
+      },
       "shows": [
         {
           "id": "weeknd-toronto-2025",
@@ -77,6 +87,11 @@
     {
       "id": "beyonce",
       "name": "Beyoncé",
+      "colorTheme": {
+        "primary": "from-yellow-600 to-yellow-800",
+        "secondary": "yellow-600",
+        "accent": "yellow-700"
+      },
       "shows": [
         {
           "id": "beyonce-houston-2025",
@@ -104,20 +119,25 @@
     {
         "id": "gabrielle-grace",
         "name": "Gabrielle Grace",
+        "colorTheme": {
+          "primary": "from-[hsl(199,41%,52%)] to-[hsl(199,41%,42%)]",
+          "secondary": "blue-500",
+          "accent": "cyan-600"
+        },
         "shows": [
           {
-            "id": "gabrielle-grace-joseph-tour",
+            "id": "gabrielle-grace-summer-tour",
             "date": "June 13th-18th, 2025",
             "venue": "Knitting Factory, Spokane",
-            "tourName": "Joseph Tour",
+            "tourName": "Summer Tour",
             "maxSongs": 7,
             "songs": [
               { "id": "46", "title": "We'll Be Alright", "artist": "Gabrielle Grace", "duration": "3:20" },
               { "id": "47", "title": "Don't You Give Up", "artist": "Gabrielle Grace", "duration": "3:50" },
-              { "id": "48", "title": "Pink Skies", "artist": "Gabrielle Grace", "duration": "3:35" },
+              { "id": "48", "title": "pink skies", "artist": "Gabrielle Grace", "duration": "3:35" },
               { "id": "49", "title": "Never Knew You", "artist": "Gabrielle Grace", "duration": "4:20" },
-              { "id": "50", "title": "Losing It", "artist": "Gabrielle Grace", "duration": "3:41" },
-              { "id": "51", "title": "It's Not That I Hate You", "artist": "Gabrielle Grace", "duration": "3:33" },
+              { "id": "50", "title": "losing it", "artist": "Gabrielle Grace", "duration": "3:41" },
+              { "id": "51", "title": "it's not that i hate you", "artist": "Gabrielle Grace", "duration": "3:33" },
               { "id": "52", "title": "Two Sides", "artist": "Gabrielle Grace", "duration": "6:01" },
               { "id": "53", "title": "Both Ways", "artist": "Gabrielle Grace", "duration": "3:21" },
               { "id": "54", "title": "I Wish That I Could Tell You", "artist": "Gabrielle Grace", "duration": "4:09" },

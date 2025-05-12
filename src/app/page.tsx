@@ -21,8 +21,15 @@ import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import SongBank from '@/components/SongBank';
 import Setlist from '@/components/Setlist';
+import ShareModal from '@/components/ShareModal';
 import { SongType } from '@/components/Song';
-import { getDefaultArtistAndShow, getArtistById, getShowById } from '@/utils/artistDataHelper';
+import { 
+  getDefaultArtistAndShow, 
+  getArtistById, 
+  getShowById, 
+  getDefaultColorTheme,
+  ColorTheme
+} from '@/utils/artistDataHelper';
 
 // Default maximum number of songs allowed if not specified in the data
 const DEFAULT_MAX_SETLIST_SONGS = 7;
@@ -37,10 +44,14 @@ export default function Home() {
   const [showVenue, setShowVenue] = useState<string>('');
   const [tourName, setTourName] = useState<string>('');
   const [maxSongs, setMaxSongs] = useState<number>(DEFAULT_MAX_SETLIST_SONGS);
+  const [colorTheme, setColorTheme] = useState<ColorTheme>(getDefaultColorTheme());
   
   // State for songs and setlist
   const [items, setItems] = useState<SongType[]>([]);
   const [setlistIds, setSetlistIds] = useState<string[]>([]);
+  
+  // Share modal state
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Initialize data on component mount
   useEffect(() => {
@@ -80,6 +91,14 @@ export default function Home() {
       setShowVenue(showData.venue);
       setTourName(showData.tourName || '');
       setMaxSongs(showData.maxSongs || DEFAULT_MAX_SETLIST_SONGS);
+      
+      // Set the artist's color theme, or use default if not specified
+      if (artistData.colorTheme) {
+        setColorTheme(artistData.colorTheme);
+      } else {
+        setColorTheme(getDefaultColorTheme());
+      }
+      
       setItems(songsData);
     }
   }, [searchParams]);
@@ -89,6 +108,9 @@ export default function Home() {
   
   // Check if setlist is at max capacity
   const isSetlistFull = setlistIds.length >= maxSongs;
+  
+  // Check if setlist is complete - has exactly the maximum number of songs
+  const isSetlistComplete = setlistIds.length === maxSongs;
 
   // Configure sensors for drag detection
   const sensors = useSensors(
@@ -160,6 +182,74 @@ export default function Home() {
       setSetlistIds(prev => prev.filter(id => id !== activeId));
     }
   };
+  
+  // Get the full song objects for the current setlist
+  const setlistSongs = setlistIds.map(id => 
+    items.find(song => song.id === id)
+  ).filter(Boolean) as SongType[];
+  
+  // Open the share modal
+  const handleShare = () => {
+    setIsShareModalOpen(true);
+  };
+
+  // Check if we need to use inline styles for custom HSL colors
+  const usesCustomColors = colorTheme?.primary?.includes('[hsl');
+  
+  // Extract color values from the colorTheme for inline styling
+  const getPrimaryGradient = () => {
+    if (!colorTheme?.primary) {
+      return 'linear-gradient(to right, #4f46e5, #9333ea)'; // Default gradient
+    }
+    
+    const colors = colorTheme.primary.split(' ');
+    const fromColor = colors.find(c => c.startsWith('from-'))?.replace('from-', '');
+    const toColor = colors.find(c => c.startsWith('to-'))?.replace('to-', '');
+    
+    if (!fromColor || !toColor) {
+      return 'linear-gradient(to right, #4f46e5, #9333ea)'; // Default gradient
+    }
+    
+    // Default colors
+    let fromHex = '#4f46e5'; // indigo-600
+    let toHex = '#9333ea';   // purple-600
+    
+    // Convert tailwind class names to actual colors
+    if (fromColor.startsWith('[') && fromColor.endsWith(']')) {
+      // Handle custom colors like [hsl(199,41%,52%)]
+      fromHex = fromColor.substring(1, fromColor.length - 1);
+    } else if (fromColor === 'red-500') {
+      fromHex = '#ef4444';
+    } else if (fromColor === 'gray-900') {
+      fromHex = '#111827';
+    } else if (fromColor === 'yellow-600') {
+      fromHex = '#ca8a04';
+    }
+    
+    if (toColor.startsWith('[') && toColor.endsWith(']')) {
+      // Handle custom colors like [hsl(199,41%,42%)]
+      toHex = toColor.substring(1, toColor.length - 1);
+    } else if (toColor === 'pink-600') {
+      toHex = '#db2777';
+    } else if (toColor === 'red-900') {
+      toHex = '#7f1d1d';
+    } else if (toColor === 'yellow-800') {
+      toHex = '#854d0e';
+    } else if (toColor === 'purple-600') {
+      toHex = '#9333ea';
+    }
+    
+    return `linear-gradient(to right, ${fromHex}, ${toHex})`;
+  };
+
+  // Get the gradient classes for styling
+  const getGradientClasses = () => {
+    // Check if the primary class is valid
+    if (!colorTheme?.primary) {
+      return 'from-indigo-600 to-purple-600'; // Default gradient
+    }
+    return colorTheme.primary;
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
@@ -168,6 +258,7 @@ export default function Home() {
         concertDate={showDate} 
         concertVenue={showVenue} 
         tourName={tourName}
+        colorTheme={colorTheme}
       />
       
       <main className="flex-1 p-4 md:p-6">
@@ -197,12 +288,52 @@ export default function Home() {
             </div>
           </DndContext>
           
-          <div className="mt-8 text-center text-gray-500 text-sm">
-            <p>Drag songs from the bank to create your perfect {maxSongs}-song setlist</p>
-            <p className="mt-1">Share your setlist with friends and {artistName}!</p>
+          <div className="mt-8 text-center">
+            <p className="text-gray-500 text-sm">
+              Drag songs from the bank to create your perfect {maxSongs}-song setlist
+            </p>
+            
+            {isSetlistComplete && (
+              <div className="mt-6">
+                <button
+                  onClick={handleShare}
+                  className={!usesCustomColors ? 
+                    `px-4 py-3 bg-gradient-to-r ${getGradientClasses()} text-white rounded-lg hover:opacity-90 shadow-md flex items-center justify-center gap-2 mx-auto` : 
+                    `px-4 py-3 text-white rounded-lg hover:opacity-90 shadow-md flex items-center justify-center gap-2 mx-auto`
+                  }
+                  style={usesCustomColors ? { background: getPrimaryGradient() } : undefined}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
+                  </svg>
+                  Share on Instagram
+                </button>
+                <p className="mt-3 text-sm text-gray-500">
+                  Your setlist is complete! Share it with friends and {artistName}!
+                </p>
+              </div>
+            )}
+            
+            {!isSetlistComplete && (
+              <p className="mt-1 text-gray-500 text-sm">
+                Share your setlist with friends and {artistName} when it's complete!
+              </p>
+            )}
           </div>
         </div>
       </main>
+      
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        artistName={artistName}
+        showDate={showDate}
+        showVenue={showVenue}
+        tourName={tourName}
+        setlistSongs={setlistSongs}
+        colorTheme={colorTheme}
+      />
     </div>
   );
 }
