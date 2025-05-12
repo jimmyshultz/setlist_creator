@@ -46,6 +46,37 @@ yarn dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
+## Deployment
+
+### Deploying to Vercel
+
+This project includes a GitHub workflow to automatically deploy to Vercel whenever changes are pushed to the main branch.
+
+#### Setup
+
+1. Create a Vercel account and project:
+   - Sign up at [vercel.com](https://vercel.com) if you don't have an account
+   - Import your GitHub repository to create a new project
+   - Complete the initial setup but don't worry about the build settings (they'll be handled by the workflow)
+
+2. Get your Vercel tokens and IDs:
+   - Vercel Organization ID: Find in Vercel Dashboard → Settings → General → Your Organization ID
+   - Vercel Project ID: Find in Vercel Dashboard → Your Project → Settings → General → Project ID
+   - Vercel Token: Create at Vercel Dashboard → Settings → Tokens
+
+3. Add secrets to your GitHub repository:
+   - Go to your GitHub repository → Settings → Secrets and variables → Actions
+   - Add the following secrets:
+     - `VERCEL_ORG_ID`: Your Vercel Organization ID
+     - `VERCEL_PROJECT_ID`: Your Vercel Project ID
+     - `VERCEL_TOKEN`: Your Vercel API token
+
+4. Push to the `main` branch:
+   - The GitHub workflow will automatically deploy your application to Vercel
+   - You can also manually trigger the workflow from the Actions tab in your GitHub repository
+
+Once deployed, your application will be available at the URL provided by Vercel, typically in the format: `https://your-project-name.vercel.app`
+
 ## Usage
 
 1. Browse the available songs in the Song Bank
