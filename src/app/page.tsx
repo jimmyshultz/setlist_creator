@@ -57,12 +57,51 @@ function MainContent() {
   const [maxSongs, setMaxSongs] = useState<number>(DEFAULT_MAX_SETLIST_SONGS);
   const [colorTheme, setColorTheme] = useState<ColorTheme>(getDefaultColorTheme());
   
+  // State for mobile detection
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  // State for showing mobile helper tooltip
+  const [showMobileHelper, setShowMobileHelper] = useState<boolean>(false);
+  
   // State for songs and setlist
   const [items, setItems] = useState<SongType[]>([]);
   const [setlistIds, setSetlistIds] = useState<string[]>([]);
   
   // Share modal state
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  // Detect mobile devices on client side and show helper if first visit
+  useEffect(() => {
+    const checkIfMobile = () => {
+      const isMobileDevice = window.innerWidth < 768;
+      setIsMobile(isMobileDevice);
+      
+      // Show helper tooltip for mobile users on first visit
+      if (isMobileDevice) {
+        // Check if we've shown the helper before
+        const hasSeenHelper = localStorage.getItem('hasSeenDragHelper');
+        if (!hasSeenHelper) {
+          setShowMobileHelper(true);
+          localStorage.setItem('hasSeenDragHelper', 'true');
+          
+          // Automatically hide after 5 seconds
+          setTimeout(() => {
+            setShowMobileHelper(false);
+          }, 5000);
+        }
+      }
+    };
+    
+    // Initial check
+    checkIfMobile();
+    
+    // Listen for window resize
+    window.addEventListener('resize', checkIfMobile);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
 
   // Initialize data on component mount
   useEffect(() => {
@@ -126,10 +165,17 @@ function MainContent() {
   // Configure sensors for drag detection
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // Very basic configuration - minimal distance
-      activationConstraint: {
-        distance: 1,
-      }
+      // Use different constraints based on device type
+      activationConstraint: isMobile
+        ? {
+            // For mobile: Use delay and tolerance for better touch interaction
+            delay: 250,
+            tolerance: 5,
+          }
+        : {
+            // For desktop: Use distance for immediate feedback
+            distance: 1,
+          }
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -298,6 +344,13 @@ function MainContent() {
               </div>
             </div>
           </DndContext>
+          
+          {/* Mobile drag helper tooltip */}
+          {showMobileHelper && (
+            <div className="mobile-drag-helper">
+              Tap and hold to drag songs between lists. Press and wait for 0.25 seconds to start dragging.
+            </div>
+          )}
           
           <div className="mt-8 text-center">
             <p className="text-gray-500 text-sm">

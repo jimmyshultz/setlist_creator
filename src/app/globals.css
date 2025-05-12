@@ -29,6 +29,32 @@ body.is-dragging * {
 }
 
 @layer components {
+  /* Mobile drag helper tooltip on first visit */
+  .mobile-drag-helper {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    animation: fade-in-out 5s forwards;
+    text-align: center;
+    max-width: 300px;
+  }
+  
+  @keyframes fade-in-out {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
   .paper {
     position: relative;
     background-color: white;
@@ -64,6 +90,17 @@ body.is-dragging * {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
     will-change: transform;
+    /* Add touch action manipulation to help with dragging on mobile */
+    touch-action: manipulation;
+  }
+  
+  /* Special focus style for mobile touch - helps with the tap-and-hold pattern */
+  @media (max-width: 768px) {
+    .song-item:active, .setlist-item:active {
+      background-color: #f0f9ff; /* Light blue background */
+      border-color: #3b82f6; /* Blue border */
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); /* Blue glow */
+    }
   }
   
   .song-item:hover {
@@ -93,6 +130,8 @@ body.is-dragging * {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
     will-change: transform;
+    /* Add touch action manipulation to help with dragging on mobile */
+    touch-action: manipulation;
   }
   
   .setlist-item:hover {
@@ -134,5 +173,8 @@ body.is-dragging * {
     background-color: white !important;
     border-color: #d1d5db;
     transition-duration: 0ms !important; /* Disable transitions during drag */
+    /* More prominent styling for mobile */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1) !important;
+    opacity: 0.9 !important;
   }
 }
