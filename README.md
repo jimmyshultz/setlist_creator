@@ -8,8 +8,9 @@ A responsive web application for fans to help artists select and arrange songs f
 - **Paper-themed Background**: Setlist appears on a paper-like background for a realistic feel
 - **Drag and Drop Interface**: Intuitive drag and drop functionality to create and arrange setlists
 - **Song Bank**: Browse available songs to add to the setlist
-- **Real-time Updates**: See the total duration and song count as you build your setlist
+- **7-Song Limit**: Create the perfect setlist with exactly 7 songs
 - **Modern UI**: Clean, modern interface with smooth animations
+- **Artist-specific Links**: Support for URL parameters to create custom links for different artists/shows
 
 ## Getting Started
 
@@ -49,13 +50,30 @@ yarn dev
 3. Rearrange songs in your setlist by dragging them
 4. Remove songs from your setlist by dragging them back to the song bank
 
+## URL Parameters
+
+The application supports artist-specific and show-specific URLs, allowing artists to share custom links with their fans:
+
+```
+http://yourdomain.com/?artist=artist-id&show=show-id
+```
+
+For example:
+```
+http://localhost:3000/?artist=taylor-swift&show=taylor-nyc-2025
+http://localhost:3000/?artist=the-weeknd&show=weeknd-toronto-2025
+http://localhost:3000/?artist=beyonce&show=beyonce-houston-2025
+```
+
+If no parameters are provided, or if the specified artist/show doesn't exist, the application will default to the first artist and show in the data.
+
 ## Customization
 
-You can easily customize the application by:
+The application loads artist and show data from a JSON file. To customize:
 
-- Modifying the artist name, concert date, and venue in the `page.tsx` file
-- Adding your own songs to the `SAMPLE_SONGS` array in `page.tsx`
-- Changing the styling in the CSS files and component classes
+1. Edit the `src/data/artists.json` file to add or modify artists, shows, and songs
+2. Each artist can have multiple shows, and each show has its own song list
+3. Make sure to provide unique IDs for artists, shows, and songs
 
 ## Technologies Used
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DndContext,
   DragEndEvent, 
@@ -16,39 +16,69 @@ import {
   arrayMove, 
   sortableKeyboardCoordinates 
 } from '@dnd-kit/sortable';
+import { useSearchParams } from 'next/navigation';
 
 import Header from '@/components/Header';
 import SongBank from '@/components/SongBank';
 import Setlist from '@/components/Setlist';
 import { SongType } from '@/components/Song';
+import { getDefaultArtistAndShow, getArtistById, getShowById } from '@/utils/artistDataHelper';
 
-// Sample data for demonstration
-const ARTIST_NAME = 'Taylor Swift';
-const CONCERT_DATE = 'June 15, 2025';
-const CONCERT_VENUE = 'Madison Square Garden, NYC';
-const MAX_SETLIST_SONGS = 7; // Limit setlist to 7 songs
-
-const SAMPLE_SONGS: SongType[] = [
-  { id: '1', title: 'Cruel Summer', artist: ARTIST_NAME, duration: '2:58' },
-  { id: '2', title: 'Love Story', artist: ARTIST_NAME, duration: '3:55' },
-  { id: '3', title: 'Blank Space', artist: ARTIST_NAME, duration: '3:51' },
-  { id: '4', title: 'Shake It Off', artist: ARTIST_NAME, duration: '3:39' },
-  { id: '5', title: 'Anti-Hero', artist: ARTIST_NAME, duration: '3:20' },
-  { id: '6', title: 'You Belong With Me', artist: ARTIST_NAME, duration: '3:52' },
-  { id: '7', title: 'Cardigan', artist: ARTIST_NAME, duration: '3:59' },
-  { id: '8', title: 'All Too Well', artist: ARTIST_NAME, duration: '5:29' },
-  { id: '9', title: 'The Man', artist: ARTIST_NAME, duration: '3:10' },
-  { id: '10', title: 'Bad Blood', artist: ARTIST_NAME, duration: '3:31' },
-  { id: '11', title: 'Wildest Dreams', artist: ARTIST_NAME, duration: '3:40' },
-  { id: '12', title: 'Delicate', artist: ARTIST_NAME, duration: '3:52' },
-  { id: '13', title: 'Enchanted', artist: ARTIST_NAME, duration: '5:53' },
-  { id: '14', title: 'Style', artist: ARTIST_NAME, duration: '3:51' },
-  { id: '15', title: 'Lover', artist: ARTIST_NAME, duration: '3:41' },
-];
+// Maximum number of songs allowed in the setlist
+const MAX_SETLIST_SONGS = 7;
 
 export default function Home() {
-  const [items, setItems] = useState(SAMPLE_SONGS);
+  // Get URL parameters
+  const searchParams = useSearchParams();
+  
+  // State for the currently selected artist and show
+  const [artistName, setArtistName] = useState<string>('');
+  const [showDate, setShowDate] = useState<string>('');
+  const [showVenue, setShowVenue] = useState<string>('');
+  
+  // State for songs and setlist
+  const [items, setItems] = useState<SongType[]>([]);
   const [setlistIds, setSetlistIds] = useState<string[]>([]);
+
+  // Initialize data on component mount
+  useEffect(() => {
+    // Get artist and show IDs from URL parameters
+    const artistId = searchParams.get('artist');
+    const showId = searchParams.get('show');
+    
+    let artistData;
+    let showData;
+    let songsData;
+    
+    // If both artist and show are specified in URL
+    if (artistId && showId) {
+      artistData = getArtistById(artistId);
+      if (artistData) {
+        showData = getShowById(artistId, showId);
+      }
+    }
+    
+    // If we couldn't find the specified artist/show, use default
+    if (!artistData || !showData) {
+      const defaultData = getDefaultArtistAndShow();
+      if (defaultData) {
+        artistData = defaultData.artist;
+        showData = defaultData.show;
+        songsData = defaultData.songs;
+      }
+    } else {
+      // Use the songs from the specified show
+      songsData = showData.songs;
+    }
+    
+    // Set the data if we have it
+    if (artistData && showData && songsData) {
+      setArtistName(artistData.name);
+      setShowDate(showData.date);
+      setShowVenue(showData.venue);
+      setItems(songsData);
+    }
+  }, [searchParams]);
 
   // Available items are all items that aren't in the setlist
   const bankItems = items.filter(item => !setlistIds.includes(item.id));
@@ -130,9 +160,9 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
       <Header 
-        artistName={ARTIST_NAME} 
-        concertDate={CONCERT_DATE} 
-        concertVenue={CONCERT_VENUE} 
+        artistName={artistName} 
+        concertDate={showDate} 
+        concertVenue={showVenue} 
       />
       
       <main className="flex-1 p-4 md:p-6">
@@ -164,7 +194,7 @@ export default function Home() {
           
           <div className="mt-8 text-center text-gray-500 text-sm">
             <p>Drag songs from the bank to create your perfect 7-song setlist</p>
-            <p className="mt-1">Share your setlist with friends and the artist!</p>
+            <p className="mt-1">Share your setlist with friends and {artistName}!</p>
           </div>
         </div>
       </main>
