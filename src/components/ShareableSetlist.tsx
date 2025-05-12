@@ -20,6 +20,10 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
   const [imageLoaded, setImageLoaded] = useState<boolean>(true);
   const [imageError, setImageError] = useState<boolean>(false);
   
+  // State to track if the logo failed to load
+  const [logoLoaded, setLogoLoaded] = useState<boolean>(false);
+  const [logoError, setLogoError] = useState<boolean>(true);
+  
   // Check if the date is a range (contains a hyphen)
   const isDateRange = showDate.includes('-');
   
@@ -84,6 +88,12 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
     return `/images/${artistId}.jpeg`;
   };
   
+  // Get artist logo based on artist name
+  const getArtistLogo = () => {
+    const artistId = artistName.toLowerCase().replace(/\s+/g, '-');
+    return `/${artistId}-logo.jpeg`;
+  };
+  
   // Handle image load error - set state to use color scheme instead
   const handleImageError = () => {
     setImageError(true);
@@ -94,6 +104,18 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
   const handleImageLoad = () => {
     setImageLoaded(true);
     setImageError(false);
+  };
+  
+  // Handle logo load error
+  const handleLogoError = () => {
+    setLogoError(true);
+    setLogoLoaded(false);
+  };
+  
+  // Handle successful logo load
+  const handleLogoLoad = () => {
+    setLogoLoaded(true);
+    setLogoError(false);
   };
   
   // Generate a nice pattern gradient background when no image is available
@@ -205,7 +227,12 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
             gap: '16px'
           }}>
             <p style={{ fontSize: '40px' }}>{showDate}</p>
-            {displayLocation && <p style={{ fontSize: '30px', opacity: 0.9 }}>{displayLocation}</p>}
+            {displayLocation && <p style={{ 
+              fontSize: '30px', 
+              opacity: 0.9, 
+              letterSpacing: '0.5px',
+              lineHeight: 1.3
+            }}>{displayLocation}</p>}
           </div>
         </div>
         
@@ -257,6 +284,8 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
                       fontSize: '36px',
                       fontWeight: 600,
                       color: '#111827',
+                      letterSpacing: '0.3px',
+                      lineHeight: 1.2
                     }}>
                       {song.title}
                     </h3>
@@ -276,10 +305,27 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
           alignItems: 'center',
           textAlign: 'center',
         }}>
+          {/* Artist Logo (only shown if it loads successfully) */}
+          <img 
+            src={getArtistLogo()}
+            alt={`${artistName} logo`}
+            style={{
+              maxWidth: '200px',
+              maxHeight: '80px',
+              objectFit: 'contain',
+              display: logoLoaded ? 'block' : 'none',
+              filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
+              marginBottom: logoLoaded ? '16px' : 0,
+            }}
+            onError={handleLogoError}
+            onLoad={handleLogoLoad}
+          />
+          
           <p style={{
             fontSize: '26px',
             color: 'white',
             textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+            letterSpacing: '0.5px',
           }}>
             Created with Setlist Creator
           </p>
