@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { SongType } from './Song';
 import { ColorTheme } from '@/utils/artistDataHelper';
-import Image from 'next/image';
 
 export interface ShareableSetlistProps {
   artistName: string;
@@ -17,12 +16,10 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
   ref
 ) => {
   // State to track if the image failed to load
-  const [imageLoaded, setImageLoaded] = useState<boolean>(true);
   const [imageError, setImageError] = useState<boolean>(false);
   
   // State to track if the logo failed to load
   const [logoLoaded, setLogoLoaded] = useState<boolean>(false);
-  const [logoError, setLogoError] = useState<boolean>(true);
   
   // Check if the date is a range (contains a hyphen)
   const isDateRange = showDate.includes('-');
@@ -97,25 +94,21 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
   // Handle image load error - set state to use color scheme instead
   const handleImageError = () => {
     setImageError(true);
-    setImageLoaded(false);
   };
   
   // Handle successful image load
   const handleImageLoad = () => {
-    setImageLoaded(true);
     setImageError(false);
   };
   
   // Handle logo load error
   const handleLogoError = () => {
-    setLogoError(true);
     setLogoLoaded(false);
   };
   
   // Handle successful logo load
   const handleLogoLoad = () => {
     setLogoLoaded(true);
-    setLogoError(false);
   };
   
   // Generate a nice pattern gradient background when no image is available
@@ -218,7 +211,7 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
             fontWeight: 'bold',
             marginBottom: '32px',
           }}>
-            {artistName}'s Setlist
+            {artistName}&apos;s Setlist
           </h1>
           
           <div style={{

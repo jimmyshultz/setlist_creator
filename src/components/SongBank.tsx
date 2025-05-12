@@ -4,13 +4,12 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import Song, { SongType } from './Song';
 
 interface SongBankProps {
-  songs: SongType[];
   bankItems: SongType[]; // Available songs that aren't in the setlist
   isSetlistFull?: boolean;
   maxSongs: number; // Maximum number of songs allowed in the setlist
 }
 
-export default function SongBank({ songs, bankItems, isSetlistFull = false, maxSongs }: SongBankProps) {
+export default function SongBank({ bankItems, isSetlistFull = false, maxSongs }: SongBankProps) {
   const { setNodeRef, isOver } = useDroppable({ 
     id: 'bank-container',
   });

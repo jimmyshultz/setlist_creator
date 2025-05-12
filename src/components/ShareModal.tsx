@@ -126,7 +126,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
     if (isOpen && shareableRef.current && !imageUrl) {
       generateImage();
     }
-  }, [isOpen, shareableRef.current]);
+  }, [isOpen, imageUrl]);
 
   // Reset states when modal closes
   useEffect(() => {

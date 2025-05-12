@@ -1,13 +1,6 @@
 import artistsData from '@/data/artists.json';
 import { SongType } from '@/components/Song';
 
-interface SongData {
-  id: string;
-  title: string;
-  artist: string;
-  duration: string;
-}
-
 export interface ShowData {
   id: string;
   date: string;

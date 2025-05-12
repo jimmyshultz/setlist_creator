@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import {
   DndContext,
   DragEndEvent, 
-  DragStartEvent,
   PointerSensor,
   KeyboardSensor,
   useSensor,
@@ -12,7 +11,6 @@ import {
   closestCenter,
 } from '@dnd-kit/core';
 import { 
-  SortableContext, 
   arrayMove, 
   sortableKeyboardCoordinates 
 } from '@dnd-kit/sortable';
@@ -125,7 +123,7 @@ export default function Home() {
     })
   );
 
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = () => {
     // Add dragging class to body for visual feedback
     document.body.classList.add('is-dragging');
   };
@@ -272,7 +270,6 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ minHeight: "calc(100vh - 200px)" }}>
               <div className="bg-white rounded-lg shadow-md overflow-hidden h-full">
                 <SongBank 
-                  songs={items} 
                   bankItems={bankItems} 
                   isSetlistFull={isSetlistFull}
                   maxSongs={maxSongs}
@@ -317,7 +314,7 @@ export default function Home() {
             
             {!isSetlistComplete && (
               <p className="mt-1 text-gray-500 text-sm">
-                Share your setlist with friends and {artistName} when it's complete!
+                Share your setlist with friends and {artistName} when it&apos;s complete!
               </p>
             )}
           </div>
