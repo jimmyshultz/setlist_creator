@@ -11,6 +11,8 @@ export interface ShowData {
   id: string;
   date: string;
   venue: string;
+  tourName?: string;
+  maxSongs?: number;
   songs: SongType[];
 }
 

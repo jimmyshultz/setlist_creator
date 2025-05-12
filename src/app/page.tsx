@@ -24,8 +24,8 @@ import Setlist from '@/components/Setlist';
 import { SongType } from '@/components/Song';
 import { getDefaultArtistAndShow, getArtistById, getShowById } from '@/utils/artistDataHelper';
 
-// Maximum number of songs allowed in the setlist
-const MAX_SETLIST_SONGS = 7;
+// Default maximum number of songs allowed if not specified in the data
+const DEFAULT_MAX_SETLIST_SONGS = 7;
 
 export default function Home() {
   // Get URL parameters
@@ -35,6 +35,8 @@ export default function Home() {
   const [artistName, setArtistName] = useState<string>('');
   const [showDate, setShowDate] = useState<string>('');
   const [showVenue, setShowVenue] = useState<string>('');
+  const [tourName, setTourName] = useState<string>('');
+  const [maxSongs, setMaxSongs] = useState<number>(DEFAULT_MAX_SETLIST_SONGS);
   
   // State for songs and setlist
   const [items, setItems] = useState<SongType[]>([]);
@@ -76,6 +78,8 @@ export default function Home() {
       setArtistName(artistData.name);
       setShowDate(showData.date);
       setShowVenue(showData.venue);
+      setTourName(showData.tourName || '');
+      setMaxSongs(showData.maxSongs || DEFAULT_MAX_SETLIST_SONGS);
       setItems(songsData);
     }
   }, [searchParams]);
@@ -84,7 +88,7 @@ export default function Home() {
   const bankItems = items.filter(item => !setlistIds.includes(item.id));
   
   // Check if setlist is at max capacity
-  const isSetlistFull = setlistIds.length >= MAX_SETLIST_SONGS;
+  const isSetlistFull = setlistIds.length >= maxSongs;
 
   // Configure sensors for drag detection
   const sensors = useSensors(
@@ -117,7 +121,7 @@ export default function Home() {
     // Handle dropping on containers
     if (overId === 'setlist-container') {
       // Only add if not already in setlist and if setlist isn't full
-      if (!setlistIds.includes(activeId) && setlistIds.length < MAX_SETLIST_SONGS) {
+      if (!setlistIds.includes(activeId) && setlistIds.length < maxSongs) {
         setSetlistIds(prev => [...prev, activeId]);
       }
       return;
@@ -142,7 +146,7 @@ export default function Home() {
     // Handle moving from bank to setlist by dropping on a setlist item
     if (!setlistIds.includes(activeId) && setlistIds.includes(overId)) {
       // Insert at position of target item, but only if setlist isn't full
-      if (setlistIds.length < MAX_SETLIST_SONGS) {
+      if (setlistIds.length < maxSongs) {
         const newIndex = setlistIds.indexOf(overId);
         const newSetlist = [...setlistIds];
         newSetlist.splice(newIndex, 0, activeId);
@@ -163,6 +167,7 @@ export default function Home() {
         artistName={artistName} 
         concertDate={showDate} 
         concertVenue={showVenue} 
+        tourName={tourName}
       />
       
       <main className="flex-1 p-4 md:p-6">
@@ -186,14 +191,14 @@ export default function Home() {
                 <Setlist 
                   setlistIds={setlistIds} 
                   allSongs={items}
-                  maxSongs={MAX_SETLIST_SONGS}
+                  maxSongs={maxSongs}
                 />
               </div>
             </div>
           </DndContext>
           
           <div className="mt-8 text-center text-gray-500 text-sm">
-            <p>Drag songs from the bank to create your perfect 7-song setlist</p>
+            <p>Drag songs from the bank to create your perfect {maxSongs}-song setlist</p>
             <p className="mt-1">Share your setlist with friends and {artistName}!</p>
           </div>
         </div>
