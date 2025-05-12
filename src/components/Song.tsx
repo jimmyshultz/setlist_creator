@@ -55,7 +55,6 @@ export default function Song({ song, index, isInSetlist = false, disabled = fals
           <h3 className={`font-medium ${disabled ? 'text-gray-500' : ''}`}>{song.title}</h3>
           <p className="text-sm text-gray-500">{song.artist}</p>
         </div>
-        <span className="text-xs text-gray-400">{song.duration}</span>
       </div>
     </div>
   );

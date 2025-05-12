@@ -20,23 +20,6 @@ export default function Setlist({ setlistIds, allSongs, maxSongs }: SetlistProps
     allSongs.find(song => song.id === id)
   ).filter(Boolean) as SongType[];
 
-  // Calculate total duration
-  const totalDuration = setlistSongs.reduce((total, song) => {
-    const [mins, secs] = song.duration.split(':').map(Number);
-    return total + mins * 60 + secs;
-  }, 0);
-  
-  const formatDuration = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    }
-    return `${minutes}m ${secs}s`;
-  };
-
   // Calculate remaining slots
   const remainingSlots = maxSongs - setlistSongs.length;
   const isFull = remainingSlots === 0;
@@ -54,7 +37,7 @@ export default function Setlist({ setlistIds, allSongs, maxSongs }: SetlistProps
             )}
           </p>
           <p className="text-sm font-medium">
-            {setlistSongs.length}/{maxSongs} songs · {formatDuration(totalDuration)}
+            {setlistSongs.length}/{maxSongs} songs
           </p>
         </div>
       </div>
