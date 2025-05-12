@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Artist Images
+# Keep directories but ignore content
+/public/images/*.jpeg
+/public/images/*.jpg
+/public/images/*.png
+/public/*.jpeg
+/public/*.jpg
+/public/*.png
+!/public/images/README.txt
+
+# Artist Logos
+/public/*-logo.jpeg
+/public/*-logo.jpg
+/public/*-logo.png
+
+# Generated files
+/generated-images/

@@ -8,7 +8,10 @@ A responsive web application for fans to help artists select and arrange songs f
 - **Paper-themed Background**: Setlist appears on a paper-like background for a realistic feel
 - **Drag and Drop Interface**: Intuitive drag and drop functionality to create and arrange setlists
 - **Song Bank**: Browse available songs to add to the setlist
-- **7-Song Limit**: Create the perfect setlist with exactly 7 songs
+- **Customizable Song Limit**: Each artist can have a different maximum number of songs (defaults to 7)
+- **Instagram Share Feature**: Generate a beautiful shareable image for Instagram stories
+- **Artist Color Themes**: Each artist can have their own color scheme throughout the app
+- **Artist Images & Logos**: Support for artist background images and logos on shareable graphics
 - **Modern UI**: Clean, modern interface with smooth animations
 - **Artist-specific Links**: Support for URL parameters to create custom links for different artists/shows
 
@@ -49,6 +52,26 @@ yarn dev
 2. Drag songs from the bank to the setlist on the right
 3. Rearrange songs in your setlist by dragging them
 4. Remove songs from your setlist by dragging them back to the song bank
+5. Once your setlist is complete, click "Share on Instagram" to generate a shareable image
+
+## Instagram Sharing Feature
+
+The app allows users to create beautiful shareable images for Instagram stories:
+
+- Click "Share on Instagram" after completing your setlist
+- The generated image includes the artist's name, event details, and your selected songs
+- Download the image or copy it directly to your clipboard
+- Images automatically use the artist's color scheme
+- If available, the artist's background image and logo will be included
+
+### Adding Artist Images and Logos
+
+To add custom artist visuals:
+
+1. For background images, add a JPEG file to `/public/images/` named after the artist (e.g., `gabrielle-grace.jpeg`)
+2. For artist logos, add a JPEG file to `/public/` named with the `-logo` suffix (e.g., `gabrielle-grace-logo.jpeg`)
+
+If images aren't available, the app will fall back to a color theme based on the artist's configuration.
 
 ## URL Parameters
 
@@ -73,7 +96,31 @@ The application loads artist and show data from a JSON file. To customize:
 
 1. Edit the `src/data/artists.json` file to add or modify artists, shows, and songs
 2. Each artist can have multiple shows, and each show has its own song list
-3. Make sure to provide unique IDs for artists, shows, and songs
+3. Define a `maxSongs` value for each show to customize the setlist size
+4. Add a `colorTheme` object to each artist with `primary`, `secondary`, and `accent` colors
+5. Make sure to provide unique IDs for artists, shows, and songs
+
+Example artist configuration:
+```json
+{
+  "id": "artist-id",
+  "name": "Artist Name",
+  "colorTheme": {
+    "primary": "from-blue-500 to-indigo-600",
+    "secondary": "blue-500",
+    "accent": "indigo-400"
+  },
+  "shows": [
+    {
+      "id": "show-id",
+      "date": "June 15, 2025",
+      "venue": "Venue Name, City",
+      "maxSongs": 10,
+      "songs": [...]
+    }
+  ]
+}
+```
 
 ## Technologies Used
 
@@ -81,6 +128,7 @@ The application loads artist and show data from a JSON file. To customize:
 - **TypeScript**: Type-safe JavaScript
 - **Tailwind CSS**: Utility-first CSS framework
 - **dnd-kit**: Modern drag and drop library for React
+- **html2canvas**: For generating shareable images
 
 ## License
 
@@ -91,3 +139,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [dnd-kit](https://dndkit.com/) for the drag and drop functionality
 - [Tailwind CSS](https://tailwindcss.com/) for the styling
 - [Next.js](https://nextjs.org/) for the application framework
+- [html2canvas](https://html2canvas.hertzen.com/) for image generation
