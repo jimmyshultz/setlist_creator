@@ -13,9 +13,10 @@ interface SongProps {
   song: SongType;
   index?: number;
   isInSetlist?: boolean;
+  disabled?: boolean;
 }
 
-export default function Song({ song, index, isInSetlist = false }: SongProps) {
+export default function Song({ song, index, isInSetlist = false, disabled = false }: SongProps) {
   const {
     attributes,
     listeners,
@@ -29,12 +30,13 @@ export default function Song({ song, index, isInSetlist = false }: SongProps) {
       duration: 150, // ms
       easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
     },
+    disabled,
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? '0.8' : '1',
+    opacity: isDragging ? '0.8' : disabled ? '0.6' : '1',
     zIndex: isDragging ? '999' : 'auto',
     position: 'relative' as const,
   };
@@ -45,12 +47,12 @@ export default function Song({ song, index, isInSetlist = false }: SongProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`${isInSetlist ? 'setlist-item' : 'song-item'} ${isDragging ? 'shadow-lg' : ''}`}
+      className={`${isInSetlist ? 'setlist-item' : 'song-item'} ${isDragging ? 'shadow-lg' : ''} ${disabled ? 'cursor-not-allowed bg-gray-50' : ''}`}
       data-position={index !== undefined ? `${index + 1}.` : ''}
     >
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="font-medium">{song.title}</h3>
+          <h3 className={`font-medium ${disabled ? 'text-gray-500' : ''}`}>{song.title}</h3>
           <p className="text-sm text-gray-500">{song.artist}</p>
         </div>
         <span className="text-xs text-gray-400">{song.duration}</span>

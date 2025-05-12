@@ -6,9 +6,10 @@ import Song, { SongType } from './Song';
 interface SongBankProps {
   songs: SongType[];
   bankItems: SongType[]; // Available songs that aren't in the setlist
+  isSetlistFull?: boolean;
 }
 
-export default function SongBank({ songs, bankItems }: SongBankProps) {
+export default function SongBank({ songs, bankItems, isSetlistFull = false }: SongBankProps) {
   const { setNodeRef, isOver } = useDroppable({ 
     id: 'bank-container',
   });
@@ -17,7 +18,11 @@ export default function SongBank({ songs, bankItems }: SongBankProps) {
     <div className="h-full flex flex-col">
       <div className="bg-gray-50 p-4 rounded-t-lg border-b border-gray-200">
         <h2 className="text-xl font-bold text-gray-800">Song Bank</h2>
-        <p className="text-sm text-gray-500">Drag songs to your setlist</p>
+        <p className="text-sm text-gray-500">
+          {isSetlistFull 
+            ? "Your setlist is full! Return songs here if needed" 
+            : "Drag songs to your setlist"}
+        </p>
       </div>
       
       <div 
@@ -40,8 +45,18 @@ export default function SongBank({ songs, bankItems }: SongBankProps) {
             strategy={verticalListSortingStrategy}
           >
             <div className="space-y-2">
+              {isSetlistFull && (
+                <div className="mb-4 p-3 bg-yellow-50 rounded-md text-yellow-700 text-sm">
+                  <p>Your setlist is full with 7 songs.</p>
+                  <p>You can drag songs back here if you want to swap them.</p>
+                </div>
+              )}
               {bankItems.map(song => (
-                <Song key={song.id} song={song} />
+                <Song 
+                  key={song.id} 
+                  song={song} 
+                  disabled={isSetlistFull}
+                />
               ))}
             </div>
           </SortableContext>

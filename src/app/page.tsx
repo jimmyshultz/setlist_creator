@@ -26,6 +26,7 @@ import { SongType } from '@/components/Song';
 const ARTIST_NAME = 'Taylor Swift';
 const CONCERT_DATE = 'June 15, 2025';
 const CONCERT_VENUE = 'Madison Square Garden, NYC';
+const MAX_SETLIST_SONGS = 7; // Limit setlist to 7 songs
 
 const SAMPLE_SONGS: SongType[] = [
   { id: '1', title: 'Cruel Summer', artist: ARTIST_NAME, duration: '2:58' },
@@ -51,6 +52,9 @@ export default function Home() {
 
   // Available items are all items that aren't in the setlist
   const bankItems = items.filter(item => !setlistIds.includes(item.id));
+  
+  // Check if setlist is at max capacity
+  const isSetlistFull = setlistIds.length >= MAX_SETLIST_SONGS;
 
   // Configure sensors for drag detection
   const sensors = useSensors(
@@ -82,8 +86,8 @@ export default function Home() {
     
     // Handle dropping on containers
     if (overId === 'setlist-container') {
-      // Only add if not already in setlist
-      if (!setlistIds.includes(activeId)) {
+      // Only add if not already in setlist and if setlist isn't full
+      if (!setlistIds.includes(activeId) && setlistIds.length < MAX_SETLIST_SONGS) {
         setSetlistIds(prev => [...prev, activeId]);
       }
       return;
@@ -107,11 +111,13 @@ export default function Home() {
     
     // Handle moving from bank to setlist by dropping on a setlist item
     if (!setlistIds.includes(activeId) && setlistIds.includes(overId)) {
-      // Insert at position of target item
-      const newIndex = setlistIds.indexOf(overId);
-      const newSetlist = [...setlistIds];
-      newSetlist.splice(newIndex, 0, activeId);
-      setSetlistIds(newSetlist);
+      // Insert at position of target item, but only if setlist isn't full
+      if (setlistIds.length < MAX_SETLIST_SONGS) {
+        const newIndex = setlistIds.indexOf(overId);
+        const newSetlist = [...setlistIds];
+        newSetlist.splice(newIndex, 0, activeId);
+        setSetlistIds(newSetlist);
+      }
     }
     
     // Handle moving from setlist to bank (dropping on bank item)
@@ -139,20 +145,25 @@ export default function Home() {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ minHeight: "calc(100vh - 200px)" }}>
               <div className="bg-white rounded-lg shadow-md overflow-hidden h-full">
-                <SongBank songs={items} bankItems={bankItems} />
+                <SongBank 
+                  songs={items} 
+                  bankItems={bankItems} 
+                  isSetlistFull={isSetlistFull}
+                />
               </div>
               
               <div className="overflow-hidden rounded-lg shadow-md h-full">
                 <Setlist 
                   setlistIds={setlistIds} 
-                  allSongs={items} 
+                  allSongs={items}
+                  maxSongs={MAX_SETLIST_SONGS}
                 />
               </div>
             </div>
           </DndContext>
           
           <div className="mt-8 text-center text-gray-500 text-sm">
-            <p>Drag songs from the bank to create your perfect setlist</p>
+            <p>Drag songs from the bank to create your perfect 7-song setlist</p>
             <p className="mt-1">Share your setlist with friends and the artist!</p>
           </div>
         </div>

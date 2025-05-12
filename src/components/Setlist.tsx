@@ -6,11 +6,13 @@ import Song, { SongType } from './Song';
 interface SetlistProps {
   setlistIds: string[];
   allSongs: SongType[];
+  maxSongs: number;
 }
 
-export default function Setlist({ setlistIds, allSongs }: SetlistProps) {
+export default function Setlist({ setlistIds, allSongs, maxSongs }: SetlistProps) {
   const { setNodeRef, isOver } = useDroppable({ 
     id: 'setlist-container',
+    disabled: setlistIds.length >= maxSongs, // Disable dropping if at max capacity
   });
   
   // Map setlistIds to actual song objects
@@ -35,14 +37,24 @@ export default function Setlist({ setlistIds, allSongs }: SetlistProps) {
     return `${minutes}m ${secs}s`;
   };
 
+  // Calculate remaining slots
+  const remainingSlots = maxSongs - setlistSongs.length;
+  const isFull = remainingSlots === 0;
+
   return (
     <div className="h-full flex flex-col">
       <div className="bg-gray-50 p-4 rounded-t-lg border-b border-gray-200">
         <h2 className="text-xl font-bold text-gray-800">Your Setlist</h2>
-        <div className="flex justify-between">
-          <p className="text-sm text-gray-500">Drag to rearrange songs</p>
+        <div className="flex justify-between items-center">
+          <p className="text-sm text-gray-500">
+            {isFull ? (
+              <span className="text-green-600 font-medium">Setlist complete!</span>
+            ) : (
+              `Add ${remainingSlots} more song${remainingSlots !== 1 ? 's' : ''}`
+            )}
+          </p>
           <p className="text-sm font-medium">
-            {setlistSongs.length} songs · {formatDuration(totalDuration)}
+            {setlistSongs.length}/{maxSongs} songs · {formatDuration(totalDuration)}
           </p>
         </div>
       </div>
@@ -51,30 +63,48 @@ export default function Setlist({ setlistIds, allSongs }: SetlistProps) {
         <div 
           ref={setNodeRef}
           className={`paper p-4 h-full overflow-y-auto transition-colors duration-200 ${
-            isOver ? 'bg-indigo-50' : ''
-          }`}
+            isOver && !isFull ? 'bg-indigo-50' : ''
+          } ${isFull ? 'bg-green-50/30' : ''}`}
           style={{ scrollBehavior: 'smooth' }}
         >
           {setlistSongs.length === 0 ? (
             <div className="flex items-center justify-center h-full text-center p-6 text-gray-400 relative z-10">
-              Drag songs here to create your setlist
+              <div>
+                <p>Build your {maxSongs}-song setlist</p>
+                <p className="mt-2 text-sm">Drag songs here from the Song Bank</p>
+              </div>
             </div>
           ) : (
-            <SortableContext 
-              items={setlistIds}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="relative z-10 space-y-2">
-                {setlistSongs.map((song, index) => (
-                  <Song 
-                    key={song.id} 
-                    song={song} 
-                    index={index}
-                    isInSetlist={true}
-                  />
-                ))}
-              </div>
-            </SortableContext>
+            <>
+              <SortableContext 
+                items={setlistIds}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="relative z-10 space-y-2">
+                  {setlistSongs.map((song, index) => (
+                    <Song 
+                      key={song.id} 
+                      song={song} 
+                      index={index}
+                      isInSetlist={true}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+              
+              {!isFull && (
+                <div className="mt-4 pt-2 border-t border-dashed border-gray-200 text-center text-gray-400 text-sm">
+                  <p>Add {remainingSlots} more song{remainingSlots !== 1 ? 's' : ''} to complete your setlist</p>
+                </div>
+              )}
+              
+              {isFull && (
+                <div className="mt-4 p-3 bg-green-50 rounded-md text-center text-green-700 text-sm">
+                  <p className="font-medium">Your setlist is complete!</p>
+                  <p className="mt-1">Rearrange songs by dragging if needed</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
