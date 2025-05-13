@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SongType } from './Song';
 import { ColorTheme } from '@/utils/artistDataHelper';
 
@@ -23,6 +23,27 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
   
   // State to track if the logo failed to load - assume it works until proven otherwise
   const [logoError, setLogoError] = useState<boolean>(false);
+  
+  // Check for mobile devices
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  
+  // Detect mobile on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => {
+        const mobile = window.innerWidth < 768 || 
+                      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        setIsMobile(mobile);
+      };
+      
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      
+      return () => {
+        window.removeEventListener('resize', checkMobile);
+      };
+    }
+  }, []);
   
   // Check if the date is a range (contains a hyphen)
   const isDateRange = showDate.includes('-');

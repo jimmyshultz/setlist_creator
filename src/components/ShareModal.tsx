@@ -29,8 +29,27 @@ const ShareModal: React.FC<ShareModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [clipboardSupported, setClipboardSupported] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const shareableRef = useRef<HTMLDivElement>(null);
   const [logoPreloaded, setLogoPreloaded] = useState<boolean>(false);
+  
+  // Detect mobile devices
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => {
+        const mobile = window.innerWidth < 768 || 
+                      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        setIsMobile(mobile);
+      };
+      
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+      
+      return () => {
+        window.removeEventListener('resize', checkMobile);
+      };
+    }
+  }, []);
   
   // Check if we need to use inline styles for custom HSL colors
   const usesCustomColors = colorTheme?.primary?.includes('[hsl');
@@ -115,12 +134,22 @@ const ShareModal: React.FC<ShareModalProps> = ({
   
   // Check if clipboard API is supported
   useEffect(() => {
-    setClipboardSupported(
-      typeof navigator !== 'undefined' && 
-      navigator.clipboard !== undefined &&
-      typeof navigator.clipboard.write === 'function'
-    );
-  }, []);
+    if (isMobile) {
+      // On mobile, we check for basic clipboard support for text
+      setClipboardSupported(
+        typeof navigator !== 'undefined' && 
+        navigator.clipboard !== undefined &&
+        typeof navigator.clipboard.writeText === 'function'
+      );
+    } else {
+      // On desktop, we check for full clipboard API with image support
+      setClipboardSupported(
+        typeof navigator !== 'undefined' && 
+        navigator.clipboard !== undefined &&
+        typeof navigator.clipboard.write === 'function'
+      );
+    }
+  }, [isMobile]);
 
   // Preload the artist logo
   useEffect(() => {
@@ -201,14 +230,18 @@ const ShareModal: React.FC<ShareModalProps> = ({
         );
         
         // Extra delay to ensure rendering is complete
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Longer delay on mobile devices
+        await new Promise(resolve => setTimeout(resolve, isMobile ? 1500 : 1000));
       };
       
       // Wait for images to load
       await loadAllImages();
       
+      // Adjust quality based on device type
+      const scale = isMobile ? 1.5 : 2;
+      
       const canvas = await html2canvas(shareableRef.current, {
-        scale: 2, // Higher quality
+        scale: scale,
         backgroundColor: 'white',
         logging: true, // Enable logging for debugging
         useCORS: true,
@@ -231,11 +264,22 @@ const ShareModal: React.FC<ShareModalProps> = ({
               
               // Make sure all images remain visible
               img.style.opacity = '1';
+              img.style.display = 'block';
               
-              // For logos, force visibility
-              if (img.alt && img.alt.includes('logo')) {
-                img.style.display = 'block';
+              // Force visibility on mobile
+              if (isMobile) {
+                // Additional styles to ensure visibility on mobile
+                img.style.position = 'relative';
+                img.style.zIndex = '10';
               }
+            });
+            
+            // Add special forced visibility for logos
+            const logos = el.querySelectorAll('.artist-logo, .artist-logo-fallback');
+            logos.forEach(logo => {
+              (logo as HTMLElement).style.display = 'block';
+              (logo as HTMLElement).style.visibility = 'visible';
+              (logo as HTMLElement).style.opacity = '1';
             });
           }
         }
@@ -256,29 +300,129 @@ const ShareModal: React.FC<ShareModalProps> = ({
     const artistSlug = artistName.toLowerCase().replace(/\s+/g, '-');
     const filename = `${artistSlug}-setlist.png`;
     
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (isMobile) {
+      // On mobile, open image in a new tab with instructions
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(`
+          <html>
+            <head>
+              <title>Save Your Setlist Image</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <style>
+                body { 
+                  font-family: system-ui, sans-serif; 
+                  margin: 0; 
+                  padding: 20px; 
+                  text-align: center; 
+                  background: #f5f5f7;
+                }
+                img { 
+                  max-width: 100%; 
+                  height: auto; 
+                  margin-bottom: 20px;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                }
+                .instructions {
+                  background: white;
+                  border-radius: 10px;
+                  padding: 15px;
+                  margin-bottom: 20px;
+                  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                }
+                h2 { color: #333; }
+              </style>
+            </head>
+            <body>
+              <div class="instructions">
+                <h2>Your Setlist Image</h2>
+                <p>Press and hold on the image to save it to your device.</p>
+              </div>
+              <img src="${imageUrl}" alt="Setlist for ${artistName}">
+            </body>
+          </html>
+        `);
+        newTab.document.close();
+      }
+    } else {
+      // Desktop download method
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
   
   const copyImageToClipboard = async () => {
     if (!imageUrl || !clipboardSupported) return;
     
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          [blob.type]: blob
-        })
-      ]);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
+      if (isMobile) {
+        // On mobile, copy a text version (most mobile browsers don't support image clipboard)
+        await navigator.clipboard.writeText(
+          `Check out my dream setlist for ${artistName}! Create your own at setlist-creator.vercel.app`
+        );
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } else {
+        // Desktop clipboard method for image copying
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            [blob.type]: blob
+          })
+        ]);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      }
     } catch (error) {
       console.error('Error copying to clipboard:', error);
+      // Try text fallback even on desktop if the image clipboard fails
+      try {
+        await navigator.clipboard.writeText(
+          `Check out my dream setlist for ${artistName}! Create your own at setlist-creator.vercel.app`
+        );
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } catch (fallbackError) {
+        console.error('Even text clipboard failed:', fallbackError);
+      }
+    }
+  };
+
+  // Handle native mobile share if available
+  const handleNativeShare = async () => {
+    if (!imageUrl) return;
+    
+    try {
+      if (navigator.share) {
+        // Try to share the image if the device supports it
+        try {
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const file = new File([blob], `${artistName.toLowerCase().replace(/\s+/g, '-')}-setlist.png`, {
+            type: 'image/png'
+          });
+          
+          await navigator.share({
+            title: `My setlist for ${artistName}`,
+            text: `Check out my dream setlist for ${artistName}!`,
+            files: [file]
+          });
+        } catch (imageShareError) {
+          // Fallback to sharing just text
+          console.log('Image sharing failed, falling back to text', imageShareError);
+          await navigator.share({
+            title: `My setlist for ${artistName}`,
+            text: `Check out my dream setlist for ${artistName}! Create your own at setlist-creator.vercel.app`
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error using native share:', error);
     }
   };
 
@@ -348,19 +492,19 @@ const ShareModal: React.FC<ShareModalProps> = ({
                   />
                 </div>
                 <div className="p-2 bg-gray-50 text-center text-sm text-gray-500">
-                  <p>Scroll to see the full image. The downloaded image will include all content.</p>
+                  <p>Scroll to see the full image. {isMobile ? 'Tap the button below to save or share.' : 'The downloaded image will include all content.'}</p>
                 </div>
               </div>
             ) : isLoading ? (
               <div className="my-6 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-                <span className="ml-3 text-gray-700">Generating image...</span>
+                <span className="ml-3 text-gray-700">Generating image{isMobile ? ' (this may take longer on mobile)' : ''}...</span>
               </div>
             ) : (
               <div className="my-6 flex items-center justify-center flex-col">
                 <div className="mb-3 text-gray-700 text-center">
                   <p className="text-lg font-medium">Click below to generate your shareable setlist image</p>
-                  <p className="text-sm text-gray-500 mt-1">This may take a few moments</p>
+                  <p className="text-sm text-gray-500 mt-1">This may take a few moments{isMobile ? ' on mobile' : ''}</p>
                 </div>
                 <button 
                   onClick={generateImage}
@@ -378,6 +522,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
         </div>
         
         <div className="p-4 border-t flex flex-wrap gap-3 justify-center">
+          {/* Main action button - optimized for mobile or desktop */}
           <button
             onClick={downloadImage}
             disabled={!imageUrl || isLoading}
@@ -391,9 +536,10 @@ const ShareModal: React.FC<ShareModalProps> = ({
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
-            Download for Instagram
+            {isMobile ? 'Save Image' : 'Download for Instagram'}
           </button>
           
+          {/* Copy to clipboard button - shown conditionally */}
           {clipboardSupported && (
             <button
               onClick={copyImageToClipboard}
@@ -409,14 +555,31 @@ const ShareModal: React.FC<ShareModalProps> = ({
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              {copySuccess ? 'Copied!' : 'Copy to Clipboard'}
+              {copySuccess ? 'Copied!' : isMobile ? 'Copy Link' : 'Copy to Clipboard'}
+            </button>
+          )}
+          
+          {/* Native share button - mobile only */}
+          {isMobile && imageUrl && typeof navigator !== 'undefined' && 'share' in navigator && (
+            <button
+              onClick={handleNativeShare}
+              disabled={!imageUrl || isLoading}
+              className={`px-4 py-2 rounded-lg bg-white border border-green-600 text-green-600 flex items-center gap-2`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Share
             </button>
           )}
         </div>
         
         <div className="px-4 pb-4 text-center">
           <p className="text-sm text-gray-500">
-            Share your dream setlist on Instagram and tag {artistName}!
+            {isMobile ? 
+              'Share your dream setlist on Instagram and tag the artist!' :
+              `Share your dream setlist on Instagram and tag ${artistName}!`
+            }
           </p>
         </div>
       </div>
