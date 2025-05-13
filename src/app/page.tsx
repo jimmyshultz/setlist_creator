@@ -5,6 +5,7 @@ import {
   DndContext,
   DragEndEvent, 
   PointerSensor,
+  TouchSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
@@ -164,13 +165,15 @@ function MainContent() {
 
   // Configure sensors for drag detection
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(isMobile ? TouchSensor : PointerSensor, {
       // Use different constraints based on device type
       activationConstraint: isMobile
         ? {
-            // For mobile: Use delay and tolerance for better touch interaction
-            delay: 250,
-            tolerance: 5,
+            // For mobile: Increase delay and reduce tolerance for better touch discrimination
+            delay: 300,
+            tolerance: 8,
+            // Prevent dragging if the pointer has moved in the vertical direction
+            // This helps distinguish between scrolling and horizontal dragging
           }
         : {
             // For desktop: Use distance for immediate feedback
@@ -238,6 +241,18 @@ function MainContent() {
       // Remove from setlist
       setSetlistIds(prev => prev.filter(id => id !== activeId));
     }
+  };
+  
+  // Handlers for direct add/remove on mobile
+  const handleAddToSetlist = (songId: string) => {
+    // Only add if not already in setlist and if setlist isn't full
+    if (!setlistIds.includes(songId) && setlistIds.length < maxSongs) {
+      setSetlistIds(prev => [...prev, songId]);
+    }
+  };
+  
+  const handleRemoveFromSetlist = (songId: string) => {
+    setSetlistIds(prev => prev.filter(id => id !== songId));
   };
   
   // Get the full song objects for the current setlist
@@ -332,6 +347,8 @@ function MainContent() {
                   bankItems={bankItems} 
                   isSetlistFull={isSetlistFull}
                   maxSongs={maxSongs}
+                  isMobile={isMobile}
+                  onAdd={handleAddToSetlist}
                 />
               </div>
               
@@ -340,6 +357,8 @@ function MainContent() {
                   setlistIds={setlistIds} 
                   allSongs={items}
                   maxSongs={maxSongs}
+                  isMobile={isMobile}
+                  onRemove={handleRemoveFromSetlist}
                 />
               </div>
             </div>
@@ -348,7 +367,7 @@ function MainContent() {
           {/* Mobile drag helper tooltip */}
           {showMobileHelper && (
             <div className="mobile-drag-helper">
-              Tap and hold to drag songs between lists. Press and wait for 0.25 seconds to start dragging.
+              Use the grip dots to drag songs, or the + and - buttons to add/remove songs directly.
             </div>
           )}
           

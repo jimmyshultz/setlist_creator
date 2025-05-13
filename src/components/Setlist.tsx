@@ -7,9 +7,11 @@ interface SetlistProps {
   setlistIds: string[];
   allSongs: SongType[];
   maxSongs: number;
+  isMobile?: boolean;
+  onRemove?: (id: string) => void;
 }
 
-export default function Setlist({ setlistIds, allSongs, maxSongs }: SetlistProps) {
+export default function Setlist({ setlistIds, allSongs, maxSongs, isMobile = false, onRemove }: SetlistProps) {
   const { setNodeRef, isOver } = useDroppable({ 
     id: 'setlist-container',
     disabled: setlistIds.length >= maxSongs, // Disable dropping if at max capacity
@@ -70,6 +72,8 @@ export default function Setlist({ setlistIds, allSongs, maxSongs }: SetlistProps
                       song={song} 
                       index={index}
                       isInSetlist={true}
+                      isMobile={isMobile}
+                      onRemove={onRemove}
                     />
                   ))}
                 </div>

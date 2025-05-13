@@ -30,6 +30,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   const [copySuccess, setCopySuccess] = useState(false);
   const [clipboardSupported, setClipboardSupported] = useState(false);
   const shareableRef = useRef<HTMLDivElement>(null);
+  const [logoPreloaded, setLogoPreloaded] = useState<boolean>(false);
   
   // Check if we need to use inline styles for custom HSL colors
   const usesCustomColors = colorTheme?.primary?.includes('[hsl');
@@ -121,12 +122,32 @@ const ShareModal: React.FC<ShareModalProps> = ({
     );
   }, []);
 
+  // Preload the artist logo
+  useEffect(() => {
+    if (isOpen) {
+      const artistId = artistName.toLowerCase().replace(/\s+/g, '-');
+      const logoUrl = `/${artistId}-logo.jpeg`;
+      
+      // Preload the logo
+      const img = new Image();
+      img.onload = () => {
+        console.log('Logo preloaded successfully');
+        setLogoPreloaded(true);
+      };
+      img.onerror = () => {
+        console.log('Logo failed to preload');
+        setLogoPreloaded(true); // Continue anyway
+      };
+      img.src = logoUrl;
+    }
+  }, [isOpen, artistName]);
+
   // Generate image when modal opens
   useEffect(() => {
-    if (isOpen && shareableRef.current && !imageUrl) {
+    if (isOpen && shareableRef.current && !imageUrl && logoPreloaded) {
       generateImage();
     }
-  }, [isOpen, imageUrl]);
+  }, [isOpen, imageUrl, logoPreloaded]);
 
   // Reset states when modal closes
   useEffect(() => {
@@ -144,13 +165,52 @@ const ShareModal: React.FC<ShareModalProps> = ({
     setIsLoading(true);
     
     try {
-      // First, ensure the element is fully rendered and images are loaded
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Ensure all images are fully loaded before capturing
+      const loadAllImages = async () => {
+        if (!shareableRef.current) return;
+        
+        const container = shareableRef.current;
+        const images = Array.from(container.querySelectorAll('img'));
+        
+        // Force all images to be fully loaded
+        await Promise.all(
+          images.map(img => {
+            return new Promise((resolve) => {
+              if (img.complete && img.naturalHeight !== 0) {
+                resolve(true);
+                return;
+              }
+              
+              // Ensure crossOrigin is set for CORS images
+              img.crossOrigin = 'anonymous';
+              
+              // Set up event handlers
+              img.onload = () => resolve(true);
+              img.onerror = () => {
+                // Don't hide images on error at this stage
+                // Let the component's own error handlers deal with it
+                resolve(false);
+              };
+              
+              // Force reload
+              const currentSrc = img.src;
+              img.src = '';
+              img.src = currentSrc;
+            });
+          })
+        );
+        
+        // Extra delay to ensure rendering is complete
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      };
+      
+      // Wait for images to load
+      await loadAllImages();
       
       const canvas = await html2canvas(shareableRef.current, {
         scale: 2, // Higher quality
         backgroundColor: 'white',
-        logging: false,
+        logging: true, // Enable logging for debugging
         useCORS: true,
         allowTaint: true,
         imageTimeout: 15000, // Longer timeout for image loading
@@ -163,31 +223,19 @@ const ShareModal: React.FC<ShareModalProps> = ({
             (el as HTMLElement).style.width = '1080px';
             (el as HTMLElement).style.height = '1920px';
             
-            // Try to trigger any image error handlers early
-            // so the color background can render if needed
+            // Ensure all images are properly loaded in the clone
             const images = el.querySelectorAll('img');
             images.forEach(img => {
-              // Force any images to load
+              // Set crossOrigin for all images
               img.crossOrigin = "anonymous";
               
-              // Clone the image element's error handler
-              const originalOnError = img.onerror;
+              // Make sure all images remain visible
+              img.style.opacity = '1';
               
-              // Create a combo error handler
-              img.onerror = (event) => {
-                // Call original error handler if it exists
-                if (typeof originalOnError === 'function') {
-                  originalOnError.call(img, event);
-                }
-                
-                // Force the image to be hidden
-                img.style.display = 'none';
-              };
-              
-              // Re-assign src to force reload
-              const src = img.src;
-              img.src = '';
-              img.src = src;
+              // For logos, force visibility
+              if (img.alt && img.alt.includes('logo')) {
+                img.style.display = 'block';
+              }
             });
           }
         }

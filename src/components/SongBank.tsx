@@ -7,9 +7,11 @@ interface SongBankProps {
   bankItems: SongType[]; // Available songs that aren't in the setlist
   isSetlistFull?: boolean;
   maxSongs: number; // Maximum number of songs allowed in the setlist
+  isMobile?: boolean;
+  onAdd?: (id: string) => void;
 }
 
-export default function SongBank({ bankItems, isSetlistFull = false, maxSongs }: SongBankProps) {
+export default function SongBank({ bankItems, isSetlistFull = false, maxSongs, isMobile = false, onAdd }: SongBankProps) {
   const { setNodeRef, isOver } = useDroppable({ 
     id: 'bank-container',
   });
@@ -56,6 +58,8 @@ export default function SongBank({ bankItems, isSetlistFull = false, maxSongs }:
                   key={song.id} 
                   song={song} 
                   disabled={isSetlistFull}
+                  isMobile={isMobile}
+                  onAdd={onAdd}
                 />
               ))}
             </div>
