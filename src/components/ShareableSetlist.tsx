@@ -388,14 +388,17 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
         </div>
         
         {/* Footer */}
-        <div style={{
-          padding: '32px',
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-        }}>
+        <div 
+          style={{
+            padding: '32px',
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+          }}
+          data-footer="true"
+        >
           {/* Artist Logo (with multiple format fallbacks) */}
           {!logoError && (
             <img 

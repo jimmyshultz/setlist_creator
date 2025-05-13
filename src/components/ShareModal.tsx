@@ -215,7 +215,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
         
         // Extra delay to ensure rendering is complete
         // Longer delay on mobile devices
-        await new Promise(resolve => setTimeout(resolve, isMobile ? 1500 : 1000));
+        await new Promise(resolve => setTimeout(resolve, isMobile ? 2000 : 1000));
       };
       
       // Wait for images to load
@@ -264,7 +264,30 @@ const ShareModal: React.FC<ShareModalProps> = ({
               (logo as HTMLElement).style.display = 'block';
               (logo as HTMLElement).style.visibility = 'visible';
               (logo as HTMLElement).style.opacity = '1';
+              
+              // On mobile, ensure footer visibility
+              if (isMobile) {
+                // Force the logo to be visible with stronger styles
+                (logo as HTMLElement).style.position = 'relative';
+                (logo as HTMLElement).style.zIndex = '100';
+              }
             });
+            
+            // Ensure footer is visible on mobile
+            if (isMobile) {
+              const footer = el.querySelector('[data-footer="true"]');
+              if (footer) {
+                (footer as HTMLElement).style.position = 'relative';
+                (footer as HTMLElement).style.zIndex = '50';
+                (footer as HTMLElement).style.bottom = '0';
+                (footer as HTMLElement).style.opacity = '1';
+                (footer as HTMLElement).style.visibility = 'visible';
+                (footer as HTMLElement).style.display = 'flex';
+                
+                // Set a background to make sure it stands out
+                (footer as HTMLElement).style.backgroundColor = 'rgba(0,0,0,0.6)';
+              }
+            }
           }
         }
       });
