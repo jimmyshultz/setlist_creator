@@ -206,15 +206,16 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
     
     // Create a more interesting background with multiple gradients
     // Use the artistNameSum to create variation between different artists
+    // Apply slightly different pattern on mobile
     return {
       background: `
         ${gradient},
-        radial-gradient(circle at ${25 + (artistNameSum % 30)}% ${20 + (artistNameSum % 40)}%, ${secondaryColor}33 0%, transparent 60%),
+        radial-gradient(circle at ${25 + (artistNameSum % 30)}% ${20 + (artistNameSum % 40)}%, ${secondaryColor}33 0%, transparent ${isMobile ? 50 : 60}%),
         radial-gradient(circle at ${70 - (artistNameSum % 20)}% ${65 + (artistNameSum % 25)}%, ${secondaryColor}22 0%, transparent 50%),
         linear-gradient(${45 + artistNameSum}deg, ${secondaryColor}11 25%, transparent 25%, transparent 75%, ${secondaryColor}11 75%, ${secondaryColor}11),
         linear-gradient(${135 - (artistNameSum % 45)}deg, ${secondaryColor}11 25%, transparent 25%, transparent 75%, ${secondaryColor}11 75%, ${secondaryColor}11)
       `,
-      backgroundSize: '100% 100%, 60% 60%, 50% 50%, 25px 25px, 25px 25px',
+      backgroundSize: `100% 100%, 60% 60%, 50% 50%, ${isMobile ? '20px 20px' : '25px 25px'}, ${isMobile ? '20px 20px' : '25px 25px'}`,
       backgroundPosition: '0 0, 0 0, 0 0, 0 0, 10px 10px',
     };
   };

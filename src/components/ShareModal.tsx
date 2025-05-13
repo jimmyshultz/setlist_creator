@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import ShareableSetlist from './ShareableSetlist';
 import { SongType } from './Song';
@@ -171,24 +171,8 @@ const ShareModal: React.FC<ShareModalProps> = ({
     }
   }, [isOpen, artistName]);
 
-  // Generate image when modal opens
-  useEffect(() => {
-    if (isOpen && shareableRef.current && !imageUrl && logoPreloaded) {
-      generateImage();
-    }
-  }, [isOpen, imageUrl, logoPreloaded]);
-
-  // Reset states when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setTimeout(() => {
-        setImageUrl(null);
-        setCopySuccess(false);
-      }, 300);
-    }
-  }, [isOpen]);
-
-  const generateImage = async () => {
+  // Define generateImage with useCallback to avoid dependency issues
+  const generateImage = useCallback(async () => {
     if (!shareableRef.current) return;
     
     setIsLoading(true);
@@ -292,7 +276,24 @@ const ShareModal: React.FC<ShareModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isMobile]);
+
+  // Generate image when modal opens
+  useEffect(() => {
+    if (isOpen && shareableRef.current && !imageUrl && logoPreloaded) {
+      generateImage();
+    }
+  }, [isOpen, imageUrl, logoPreloaded, generateImage]);
+
+  // Reset states when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setTimeout(() => {
+        setImageUrl(null);
+        setCopySuccess(false);
+      }, 300);
+    }
+  }, [isOpen]);
 
   const downloadImage = () => {
     if (!imageUrl) return;
