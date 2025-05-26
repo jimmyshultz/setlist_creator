@@ -11,9 +11,6 @@ export interface ShareableSetlistProps {
   colorTheme: ColorTheme;
 }
 
-// Base64 encoded fallback logo for Gabrielle Grace (small placeholder)
-const GABRIELLE_GRACE_LOGO_FALLBACK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAAAoCAYAAAAcwQPnAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAVDSURBVHgB7ZtfbFNVGMC/c+9tV4ZscYsTErKxPajJIrCYGDYMm+sDiQZJnCaLJsYXeXDGF40mE01MjImJvBiHeHAkUV6IMdE4xmZC5GFuTsaYW9iGBPgzB1m7tfd+fud27da17b23vX/Mne9X0nPuuadnbfPdc77vfOcQiUQikUgk1QNDlUDoU0eB7qrWyChk1SG23J4kybRTLsZIMcEYz/R2DV1Cb3eQJiUW5/tgjMQyKs95u4dOIRZl0pYrKpcU9ULu2F9fgqGjpqO8z5Ol/yP4nIUQPu7ftbKVhAKK1sOvvYhV2qwTF/Uoavd4b1eIsLCFNmBcHEJ3Yd1GEzwfDtd5LFWM+zuCxNg8KcKLGNjL6DHF7Rq6SPaQhFiwYhH3hYNTm4zAkWYYVxFRH8HdZ8k+nPk7wz2fvIqm5l1kF9LZPuzVY9jyjNJkA2zZnqAKM5bI/LHmYnQMLfMbE0yfqrSoEMXx5Wj+EAQzIxFBJsNrfA1WX5jd2wDlxMfbg8dVr7EefVu8GJfcv/8YIHsoxGKMQQT6kQ32E/ykYAFb/u2PzaA9cqP7fj05wKnwEv4+wd0yjv0RdJOpKHpOohxDywKIcouCIhfZeITHk6f+H1/FVHnB5zYmjDuYxsUzNEbXyB75LrYIxMQCQ0iLnCHFUMo4O4OBUl9F4BbBuT2oKCzCY4yEvIr7i5KVZAY9yCwHCxe1bHklTYXNjTMkUYS3vxekQXxOHF14kPQZRANEgXeHg9NjtEEIKzQvQ5qcwIZ+NbvgQnrHf6bKRCO1yzUVCpI/FWpMDUL8CqJBIpPXBcPnqoR4e3rDO9ExkhQGKVX2ylTIlcUm+sKvWZQCeWLRq6FRvO+jUknsT4Ubb0JcgKCkj1yRFbCZqnxLiKFLrK6iXvt5a76wwDLZZMKKfEUO/JWXKaEqVBIJPP0wKY5bK9CG6MpThDDTWvvzc8QTx5/6n9ViN7Cxwvx1Jt3QRQ4n1u6ZTxCNE+Oqa93Z1UuWINY4lXtv4Vry62QTFcqmMWRdHnRFWWuYYXMXaL7Oe3dPEIXvcecPqFQqLZ3sYv4BtN1UWEn6hcgq6CJ20SdNQKxRzP8fO2vYwgLIE+shUd9nM0HfXLbFRfXwlTTqyLbPfARmGIqJNYxRN0w2UbmCYQlcH5xtA7HiyHJnqjhrZbawAF2xYrHPiYoitEwkX7NttjCDCNpENqCLlTDdxVoHAysmFmbUB9EmqcwUZrj1Ig6Kq7OLTIllTdNSCu8ij9D5IK5Y+2g9aJkpzCiiC5YtaFPpprWKFBh9U18ysQDhxtWgJ1Yd5obaxXZhkWnfLlOwZQvLVwsD+QvEdIvOLRy3w+q/vWL1wCvwUVEX5/2DI+OTrydRsS9tN5uwSHZBkfnIKJdYrJD1zfW9RxfMWYl67PfoIqyc/KsDbKRJzN5jNnGc3PdxPV4w9pYYH3xSN0Kv6H46NJmZZ4Yx4IhpWwjOQVuuoUXCgQ0LGZEzJEm/7g81uyA8E4ZYxGc7tLzXPcfhcBynCvJUbfqoTmhLhW/gjI1BbMCRIz1dQ+dJYnxb0MU2dsPxfWCDsGI9WGRpIJFXJLKPi6lOfH6xZDEqoOSJgWaJeUKMp5sLn3v9Lym1gu3bZUoFC459vPvDgGgNHSEJCt7wj/dJSqWWt8vYQb/eRCKRSCQSiUQikUgkZfM/14tifJbxZCIAAAAASUVORK5CYII=";
-
 const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>((
   { artistName, showDate, showVenue, tourName, setlistSongs, colorTheme }, 
   ref
@@ -21,8 +18,7 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
   // State to track if the image failed to load
   const [imageError, setImageError] = useState<boolean>(false);
   
-  // State to track if the logo failed to load - assume it works until proven otherwise
-  const [logoError, setLogoError] = useState<boolean>(false);
+
   
   // Check for mobile devices
   const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -109,27 +105,7 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
     return `/images/${artistId}.jpeg`;
   };
   
-  // Get artist logo based on artist name
-  const getArtistLogo = () => {
-    const artistId = artistName.toLowerCase().replace(/\s+/g, '-');
-    return `/${artistId}-logo.jpeg`;
-  };
-  
-  // Get alternative logo formats - try different extensions if the main one fails
-  const getAlternativeLogoUrls = () => {
-    const artistId = artistName.toLowerCase().replace(/\s+/g, '-');
-    return [
-      `/${artistId}-logo.png`,
-      `/${artistId}-logo.jpg`,
-      `/images/${artistId}-logo.jpeg`,
-      `/images/${artistId}-logo.png`,
-      `/images/${artistId}-logo.jpg`
-    ];
-  };
-  
-  // Logo error counter to try alternative formats
-  const [logoErrorCount, setLogoErrorCount] = useState<number>(0);
-  const alternativeLogos = getAlternativeLogoUrls();
+
   
   // Get alternative background image formats (similar to logo)
   const getAlternativeBackgroundUrls = () => {
@@ -175,24 +151,7 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
     setImageError(false);
   };
   
-  // Handle logo load error - try alternative formats before giving up
-  const handleLogoError = () => {
-    // Check if we have alternative formats to try
-    if (logoErrorCount < alternativeLogos.length) {
-      setLogoErrorCount(prev => prev + 1);
-    } else {
-      // We've tried all formats, hide the logo
-      setLogoError(true);
-    }
-  };
-  
-  // Get current logo URL based on error count
-  const getCurrentLogoUrl = () => {
-    if (logoErrorCount === 0) {
-      return getArtistLogo();
-    }
-    return alternativeLogos[logoErrorCount - 1];
-  };
+
   
   // Generate a nice pattern gradient background when no image is available
   const getColorBackground = () => {
@@ -220,12 +179,7 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
     };
   };
   
-  // Function to determine if we should use the embedded fallback logo
-  const shouldUseEmbeddedLogo = () => {
-    // If we've tried all other formats and failed, use the embedded logo
-    // But only for Gabrielle Grace (since that's the only one we have encoded)
-    return logoError && artistName.toLowerCase().includes('gabrielle grace');
-  };
+
   
   return (
     <div 
