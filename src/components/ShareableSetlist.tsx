@@ -399,41 +399,6 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
           }}
           data-footer="true"
         >
-          {/* Artist Logo (with multiple format fallbacks) */}
-          {!logoError && (
-            <img 
-              src={getCurrentLogoUrl()}
-              alt={`${artistName} logo`}
-              className="artist-logo"
-              style={{
-                maxWidth: '200px',
-                maxHeight: '80px',
-                objectFit: 'contain',
-                display: 'block',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
-                marginBottom: '16px',
-              }}
-              onError={handleLogoError}
-            />
-          )}
-          
-          {/* Hardcoded fallback for Gabrielle Grace */}
-          {shouldUseEmbeddedLogo() && (
-            <img 
-              src={GABRIELLE_GRACE_LOGO_FALLBACK}
-              alt={`${artistName} logo (fallback)`}
-              className="artist-logo-fallback"
-              style={{
-                maxWidth: '200px',
-                maxHeight: '80px',
-                objectFit: 'contain',
-                display: 'block', 
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))',
-                marginBottom: '16px',
-              }}
-            />
-          )}
-          
           <p style={{
             fontSize: '26px',
             color: 'white',
