@@ -1,431 +1,445 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import {
-  DndContext,
-  DragEndEvent, 
-  PointerSensor,
-  TouchSensor,
-  KeyboardSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
-} from '@dnd-kit/core';
-import { 
-  arrayMove, 
-  sortableKeyboardCoordinates 
-} from '@dnd-kit/sortable';
-import { useSearchParams } from 'next/navigation';
+import React, { useState } from 'react';
+import Link from 'next/link';
 
-import Header from '@/components/Header';
-import SongBank from '@/components/SongBank';
-import Setlist from '@/components/Setlist';
-import ShareModal from '@/components/ShareModal';
-import { SongType } from '@/components/Song';
-import { 
-  getDefaultArtistAndShow, 
-  getArtistById, 
-  getShowById, 
-  getDefaultColorTheme,
-  ColorTheme
-} from '@/utils/artistDataHelper';
+export default function HomePage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-// Default maximum number of songs allowed if not specified in the data
-const DEFAULT_MAX_SETLIST_SONGS = 7;
+  const handleEmailClick = () => {
+    const subject = encodeURIComponent('Custom Setlist Creator Request');
+    const body = encodeURIComponent(`Hi there!
 
-// Loading component to use as fallback
-function Loading() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
-        <p className="text-gray-700">Loading setlist creator...</p>
-      </div>
-    </div>
-  );
-}
+I'm interested in getting a custom setlist creator for my upcoming show(s). Here are the details:
 
-// Main content component that uses useSearchParams
-function MainContent() {
-  // Get URL parameters
-  const searchParams = useSearchParams();
-  
-  // State for the currently selected artist and show
-  const [artistName, setArtistName] = useState<string>('');
-  const [showDate, setShowDate] = useState<string>('');
-  const [showVenue, setShowVenue] = useState<string>('');
-  const [tourName, setTourName] = useState<string>('');
-  const [maxSongs, setMaxSongs] = useState<number>(DEFAULT_MAX_SETLIST_SONGS);
-  const [colorTheme, setColorTheme] = useState<ColorTheme>(getDefaultColorTheme());
-  
-  // State for mobile detection
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-  // State for showing mobile helper tooltip
-  const [showMobileHelper, setShowMobileHelper] = useState<boolean>(false);
-  
-  // State for songs and setlist
-  const [items, setItems] = useState<SongType[]>([]);
-  const [setlistIds, setSetlistIds] = useState<string[]>([]);
-  
-  // Share modal state
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+ARTIST INFORMATION:
+- Artist/Band Name: [Your name here]
+- Contact Email: [Your email]
+- Website/Social Media: [Optional]
 
-  // Detect mobile devices on client side and show helper if first visit
-  useEffect(() => {
-    const checkIfMobile = () => {
-      const isMobileDevice = window.innerWidth < 768;
-      setIsMobile(isMobileDevice);
-      
-      // Show helper tooltip for mobile users on first visit
-      if (isMobileDevice) {
-        // Check if we've shown the helper before
-        const hasSeenHelper = localStorage.getItem('hasSeenDragHelper');
-        if (!hasSeenHelper) {
-          setShowMobileHelper(true);
-          localStorage.setItem('hasSeenDragHelper', 'true');
-          
-          // Automatically hide after 5 seconds
-          setTimeout(() => {
-            setShowMobileHelper(false);
-          }, 5000);
-        }
-      }
-    };
-    
-    // Initial check
-    checkIfMobile();
-    
-    // Listen for window resize
-    window.addEventListener('resize', checkIfMobile);
-    
-    // Cleanup
-    return () => {
-      window.removeEventListener('resize', checkIfMobile);
-    };
-  }, []);
+SHOW/TOUR DETAILS:
+- Type: [ ] Single Show [ ] Tour/Multiple Shows
+- Show Date(s): [Date or date range]
+- Venue(s): [Venue name(s) and city/cities]
+- Tour Name: [If applicable]
 
-  // Initialize data on component mount
-  useEffect(() => {
-    // Get artist and show IDs from URL parameters
-    const artistId = searchParams.get('artist');
-    const showId = searchParams.get('show');
-    
-    let artistData;
-    let showData;
-    let songsData;
-    
-    // If both artist and show are specified in URL
-    if (artistId && showId) {
-      artistData = getArtistById(artistId);
-      if (artistData) {
-        showData = getShowById(artistId, showId);
-      }
-    }
-    
-    // If we couldn't find the specified artist/show, use default
-    if (!artistData || !showData) {
-      const defaultData = getDefaultArtistAndShow();
-      if (defaultData) {
-        artistData = defaultData.artist;
-        showData = defaultData.show;
-        songsData = defaultData.songs;
-      }
-    } else {
-      // Use the songs from the specified show
-      songsData = showData.songs;
-    }
-    
-    // Set the data if we have it
-    if (artistData && showData && songsData) {
-      setArtistName(artistData.name);
-      setShowDate(showData.date);
-      setShowVenue(showData.venue);
-      setTourName(showData.tourName || '');
-      setMaxSongs(showData.maxSongs || DEFAULT_MAX_SETLIST_SONGS);
-      
-      // Set the artist's color theme, or use default if not specified
-      if (artistData.colorTheme) {
-        setColorTheme(artistData.colorTheme);
-      } else {
-        setColorTheme(getDefaultColorTheme());
-      }
-      
-      setItems(songsData);
-    }
-  }, [searchParams]);
+SETLIST PREFERENCES:
+- Maximum number of songs: [e.g., 15, 20, 25]
+- Estimated show duration: [e.g., 90 minutes, 2 hours]
+- Song list: [Please attach or list your songs - can be sent separately]
 
-  // Available items are all items that aren't in the setlist
-  const bankItems = items.filter(item => !setlistIds.includes(item.id));
-  
-  // Check if setlist is at max capacity
-  const isSetlistFull = setlistIds.length >= maxSongs;
-  
-  // Check if setlist is complete - has exactly the maximum number of songs
-  const isSetlistComplete = setlistIds.length === maxSongs;
+CUSTOMIZATION (Optional):
+- Preferred color theme: [e.g., "blue and purple", "red and black", or specific hex codes]
+- Background image: [Attach if you have one, or describe what you'd like]
 
-  // Configure sensors for drag detection
-  const sensors = useSensors(
-    useSensor(isMobile ? TouchSensor : PointerSensor, {
-      // Use different constraints based on device type
-      activationConstraint: isMobile
-        ? {
-            // For mobile: Increase delay and reduce tolerance for better touch discrimination
-            delay: 300,
-            tolerance: 8,
-            // Prevent dragging if the pointer has moved in the vertical direction
-            // This helps distinguish between scrolling and horizontal dragging
-          }
-        : {
-            // For desktop: Use distance for immediate feedback
-            distance: 1,
-          }
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+PRICING:
+- [ ] Single Show ($25)
+- [ ] Monthly Tour Package ($25/month)
 
-  const handleDragStart = () => {
-    // Add dragging class to body for visual feedback
-    document.body.classList.add('is-dragging');
-  };
+Additional notes or special requests:
+[Any other details you'd like to include]
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    document.body.classList.remove('is-dragging');
+Thanks!
+[Your name]`);
     
-    const { active, over } = event;
-    
-    if (!over) return;
-    
-    const activeId = active.id.toString();
-    const overId = over.id.toString();
-    
-    // Handle dropping on containers
-    if (overId === 'setlist-container') {
-      // Only add if not already in setlist and if setlist isn't full
-      if (!setlistIds.includes(activeId) && setlistIds.length < maxSongs) {
-        setSetlistIds(prev => [...prev, activeId]);
-      }
-      return;
-    }
-    
-    if (overId === 'bank-container') {
-      // Remove from setlist if it's there
-      setSetlistIds(prev => prev.filter(id => id !== activeId));
-      return;
-    }
-    
-    // Handle reordering within setlist
-    if (setlistIds.includes(activeId) && setlistIds.includes(overId)) {
-      const oldIndex = setlistIds.indexOf(activeId);
-      const newIndex = setlistIds.indexOf(overId);
-      
-      if (oldIndex !== newIndex) {
-        setSetlistIds(items => arrayMove(items, oldIndex, newIndex));
-      }
-    }
-    
-    // Handle moving from bank to setlist by dropping on a setlist item
-    if (!setlistIds.includes(activeId) && setlistIds.includes(overId)) {
-      // Insert at position of target item, but only if setlist isn't full
-      if (setlistIds.length < maxSongs) {
-        const newIndex = setlistIds.indexOf(overId);
-        const newSetlist = [...setlistIds];
-        newSetlist.splice(newIndex, 0, activeId);
-        setSetlistIds(newSetlist);
-      }
-    }
-    
-    // Handle moving from setlist to bank (dropping on bank item)
-    if (setlistIds.includes(activeId) && !setlistIds.includes(overId)) {
-      // Remove from setlist
-      setSetlistIds(prev => prev.filter(id => id !== activeId));
-    }
-  };
-  
-  // Handlers for direct add/remove on mobile
-  const handleAddToSetlist = (songId: string) => {
-    // Only add if not already in setlist and if setlist isn't full
-    if (!setlistIds.includes(songId) && setlistIds.length < maxSongs) {
-      setSetlistIds(prev => [...prev, songId]);
-    }
-  };
-  
-  const handleRemoveFromSetlist = (songId: string) => {
-    setSetlistIds(prev => prev.filter(id => id !== songId));
-  };
-  
-  // Get the full song objects for the current setlist
-  const setlistSongs = setlistIds.map(id => 
-    items.find(song => song.id === id)
-  ).filter(Boolean) as SongType[];
-  
-  // Open the share modal
-  const handleShare = () => {
-    setIsShareModalOpen(true);
-  };
-
-  // Check if we need to use inline styles for custom HSL colors
-  const usesCustomColors = colorTheme?.primary?.includes('[hsl');
-  
-  // Extract color values from the colorTheme for inline styling
-  const getPrimaryGradient = () => {
-    if (!colorTheme?.primary) {
-      return 'linear-gradient(to right, #4f46e5, #9333ea)'; // Default gradient
-    }
-    
-    const colors = colorTheme.primary.split(' ');
-    const fromColor = colors.find(c => c.startsWith('from-'))?.replace('from-', '');
-    const toColor = colors.find(c => c.startsWith('to-'))?.replace('to-', '');
-    
-    if (!fromColor || !toColor) {
-      return 'linear-gradient(to right, #4f46e5, #9333ea)'; // Default gradient
-    }
-    
-    // Default colors
-    let fromHex = '#4f46e5'; // indigo-600
-    let toHex = '#9333ea';   // purple-600
-    
-    // Convert tailwind class names to actual colors
-    if (fromColor.startsWith('[') && fromColor.endsWith(']')) {
-      // Handle custom colors like [hsl(199,41%,52%)]
-      fromHex = fromColor.substring(1, fromColor.length - 1);
-    } else if (fromColor === 'red-500') {
-      fromHex = '#ef4444';
-    } else if (fromColor === 'gray-900') {
-      fromHex = '#111827';
-    } else if (fromColor === 'yellow-600') {
-      fromHex = '#ca8a04';
-    }
-    
-    if (toColor.startsWith('[') && toColor.endsWith(']')) {
-      // Handle custom colors like [hsl(199,41%,42%)]
-      toHex = toColor.substring(1, toColor.length - 1);
-    } else if (toColor === 'pink-600') {
-      toHex = '#db2777';
-    } else if (toColor === 'red-900') {
-      toHex = '#7f1d1d';
-    } else if (toColor === 'yellow-800') {
-      toHex = '#854d0e';
-    } else if (toColor === 'purple-600') {
-      toHex = '#9333ea';
-    }
-    
-    return `linear-gradient(to right, ${fromHex}, ${toHex})`;
-  };
-
-  // Get the gradient classes for styling
-  const getGradientClasses = () => {
-    // Check if the primary class is valid
-    if (!colorTheme?.primary) {
-      return 'from-indigo-600 to-purple-600'; // Default gradient
-    }
-    return colorTheme.primary;
+    window.location.href = `mailto:jimmyshultz3@gmail.com?subject=${subject}&body=${body}`;
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
-      <Header 
-        artistName={artistName} 
-        concertDate={showDate} 
-        concertVenue={showVenue} 
-        tourName={tourName}
-        colorTheme={colorTheme}
-      />
-      
-      <main className="flex-1 p-4 md:p-6">
-        <div className="container mx-auto max-w-6xl">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ minHeight: "calc(100vh - 200px)" }}>
-              <div className="bg-white rounded-lg shadow-md overflow-hidden h-full">
-                <SongBank 
-                  bankItems={bankItems} 
-                  isSetlistFull={isSetlistFull}
-                  maxSongs={maxSongs}
-                  isMobile={isMobile}
-                  onAdd={handleAddToSetlist}
-                />
-              </div>
-              
-              <div className="overflow-hidden rounded-lg shadow-md h-full">
-                <Setlist 
-                  setlistIds={setlistIds} 
-                  allSongs={items}
-                  maxSongs={maxSongs}
-                  isMobile={isMobile}
-                  onRemove={handleRemoveFromSetlist}
-                />
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      {/* Navigation */}
+      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Setlist Creator
+                </h1>
               </div>
             </div>
-          </DndContext>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-baseline space-x-4">
+                <a href="#features" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                  Features
+                </a>
+                <a href="#pricing" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                  Pricing
+                </a>
+                <a href="#examples" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                  Examples
+                </a>
+                <button
+                  onClick={handleEmailClick}
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                >
+                  Get Started
+                </button>
+              </div>
+            </div>
+            
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-gray-700 hover:text-indigo-600 p-2"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
           
-          {/* Mobile drag helper tooltip */}
-          {showMobileHelper && (
-            <div className="mobile-drag-helper">
-              Use the grip dots to drag songs, or the + and - buttons to add/remove songs directly.
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <div className="md:hidden">
+              <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+                <a href="#features" className="text-gray-700 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">
+                  Features
+                </a>
+                <a href="#pricing" className="text-gray-700 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">
+                  Pricing
+                </a>
+                <a href="#examples" className="text-gray-700 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">
+                  Examples
+                </a>
+                <button
+                  onClick={handleEmailClick}
+                  className="w-full text-left bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-2 rounded-lg hover:opacity-90 transition-opacity font-medium"
+                >
+                  Get Started
+                </button>
+              </div>
             </div>
           )}
-          
-          <div className="mt-8 text-center">
-            <p className="text-gray-500 text-sm">
-              Drag songs from the bank to create your perfect {maxSongs}-song setlist
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+              Let Your Fans
+              <span className="block bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Create Your Setlist
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Give your fans an interactive way to vote on your setlist before the show. 
+              Increase engagement, build excitement, and create unforgettable experiences.
             </p>
-            
-            {isSetlistComplete && (
-              <div className="mt-6">
-                <button
-                  onClick={handleShare}
-                  className={!usesCustomColors ? 
-                    `px-4 py-3 bg-gradient-to-r ${getGradientClasses()} text-white rounded-lg hover:opacity-90 shadow-md flex items-center justify-center gap-2 mx-auto` : 
-                    `px-4 py-3 text-white rounded-lg hover:opacity-90 shadow-md flex items-center justify-center gap-2 mx-auto`
-                  }
-                  style={usesCustomColors ? { background: getPrimaryGradient() } : undefined}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
-                  </svg>
-                  Share on Instagram
-                </button>
-                <p className="mt-3 text-sm text-gray-500">
-                  Your setlist is complete! Share it with friends and {artistName}!
-                </p>
-              </div>
-            )}
-            
-            {!isSetlistComplete && (
-              <p className="mt-1 text-gray-500 text-sm">
-                Share your setlist with friends and {artistName} when it&apos;s complete!
-              </p>
-            )}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={handleEmailClick}
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-lg hover:opacity-90 transition-opacity font-semibold text-lg shadow-lg"
+              >
+                Get Your Custom Link
+              </button>
+              <a
+                href="#examples"
+                className="border-2 border-indigo-600 text-indigo-600 px-8 py-4 rounded-lg hover:bg-indigo-50 transition-colors font-semibold text-lg"
+              >
+                See Examples
+              </a>
+            </div>
           </div>
         </div>
-      </main>
-      
-      {/* Share Modal */}
-      <ShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        artistName={artistName}
-        showDate={showDate}
-        showVenue={showVenue}
-        tourName={tourName}
-        setlistSongs={setlistSongs}
-        colorTheme={colorTheme}
-      />
+        
+        {/* Background decoration */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-gradient-to-r from-indigo-300 to-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-gradient-to-r from-pink-300 to-indigo-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000"></div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section id="features" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Why Artists Love Setlist Creator
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Engage your fans like never before with interactive setlist creation
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Fan Engagement</h3>
+              <p className="text-gray-600">
+                Let fans vote on their favorite songs and feel involved in creating the perfect setlist for your show.
+              </p>
+            </div>
+            
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Mobile Optimized</h3>
+              <p className="text-gray-600">
+                Beautiful, responsive design that works perfectly on all devices. Easy drag-and-drop or tap-to-add functionality.
+              </p>
+            </div>
+            
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Custom Branding</h3>
+              <p className="text-gray-600">
+                Personalized with your colors, tour information, and branding. Each link is unique to your show or tour.
+              </p>
+            </div>
+            
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Social Sharing</h3>
+              <p className="text-gray-600">
+                Fans can share their created setlists on Instagram, spreading the word about your upcoming show.
+              </p>
+            </div>
+            
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Quick Setup</h3>
+              <p className="text-gray-600">
+                Get your custom setlist creator up and running in 24-48 hours. Just send us your songs and preferences.
+              </p>
+            </div>
+            
+            <div className="text-center p-6">
+              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Proven Results</h3>
+              <p className="text-gray-600">
+                Artists report increased social media engagement and stronger fan connections when using setlist creators.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Choose the option that works best for your shows
+            </p>
+          </div>
+          
+          <div className="flex justify-center">
+            <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-indigo-600 relative max-w-md">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                  Most Popular
+                </span>
+              </div>
+              
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Single Show/Tour</h3>
+                <div className="text-4xl font-bold text-gray-900 mb-4">
+                  $25
+                  <span className="text-lg font-normal text-gray-600">/link/month</span>
+                </div>
+                <p className="text-gray-600 mb-6">Perfect for one-off shows or tours</p>
+                
+                <ul className="text-left space-y-3 mb-8">
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Custom branded setlist creator
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Your color theme & branding
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Instagram sharing feature
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Link active as long as you want
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    24-48 hour delivery
+                  </li>
+                </ul>
+                
+                <button
+                  onClick={handleEmailClick}
+                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg hover:opacity-90 transition-opacity font-semibold"
+                >
+                  Get Started
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Examples Section */}
+      <section id="examples" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              See It In Action
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Check out these example setlist creators for different artists
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Link href="/gabrielle-grace/gabrielle-grace-summer-tour" className="group">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6 hover:shadow-lg transition-shadow border border-blue-200">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white font-bold text-xl">GG</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Gabrielle Grace</h3>
+                  <p className="text-sm text-gray-600 mb-3">Summer Tour</p>
+                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                    View Example →
+                  </span>
+                </div>
+              </div>
+            </Link>
+            
+            <Link href="/the-weeknd/weeknd-toronto-2025" className="group">
+              <div className="bg-gradient-to-br from-red-50 to-pink-100 rounded-xl p-6 hover:shadow-lg transition-shadow border border-red-200">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-red-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white font-bold text-xl">TW</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">The Weeknd</h3>
+                  <p className="text-sm text-gray-600 mb-3">Rogers Centre, Toronto</p>
+                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">
+                    View Example →
+                  </span>
+                </div>
+              </div>
+            </Link>
+            
+            <Link href="/taylor-swift/taylor-la-2025" className="group">
+              <div className="bg-gradient-to-br from-yellow-50 to-purple-100 rounded-xl p-6 hover:shadow-lg transition-shadow border border-yellow-200">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-yellow-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white font-bold text-xl">TS</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Taylor Swift</h3>
+                  <p className="text-sm text-gray-600 mb-3">SoFi Stadium</p>
+                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                    View Example →
+                  </span>
+                </div>
+              </div>
+            </Link>
+            
+            <Link href="/taylor-swift/taylor-nyc-2025" className="group">
+              <div className="bg-gradient-to-br from-purple-50 to-pink-100 rounded-xl p-6 hover:shadow-lg transition-shadow border border-purple-200">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white font-bold text-xl">TS</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Taylor Swift</h3>
+                  <p className="text-sm text-gray-600 mb-3">Madison Square Garden</p>
+                  <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                    View Example →
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 bg-gradient-to-r from-indigo-600 to-purple-600">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Ready to Engage Your Fans?
+          </h2>
+          <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+            Get your custom setlist creator and start building excitement for your next show
+          </p>
+          <button
+            onClick={handleEmailClick}
+            className="bg-white text-indigo-600 px-8 py-4 rounded-lg hover:bg-gray-50 transition-colors font-semibold text-lg shadow-lg"
+          >
+            Get Your Custom Link Now
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-4">
+              Setlist Creator
+            </h3>
+            <p className="text-gray-400 mb-6">
+              Empowering artists to connect with their fans through interactive setlist creation
+            </p>
+            <div className="flex justify-center space-x-6">
+              <a href="mailto:jimmyshultz3@gmail.com" className="text-gray-400 hover:text-white transition-colors">
+                Contact
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                Privacy
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                Terms
+              </a>
+            </div>
+            <div className="mt-8 pt-8 border-t border-gray-800">
+              <p className="text-gray-400 text-sm">
+                © 2024 Setlist Creator. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
-}
-
-// Main export with Suspense
-export default function Home() {
-  return (
-    <Suspense fallback={<Loading />}>
-      <MainContent />
-    </Suspense>
-  );
-}
+} 
