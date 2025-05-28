@@ -18,7 +18,7 @@ ARTIST INFORMATION:
 - Website/Social Media: [Optional]
 
 SHOW/TOUR DETAILS:
-- Type: [ ] Single Show [ ] Tour/Multiple Shows
+- Type: [ ] Single Link for one Show/Tour [ ] Multiple Links for multiple Shows/Tours
 - Show Date(s): [Date or date range]
 - Venue(s): [Venue name(s) and city/cities]
 - Tour Name: [If applicable]
@@ -30,11 +30,11 @@ SETLIST PREFERENCES:
 
 CUSTOMIZATION (Optional):
 - Preferred color theme: [e.g., "blue and purple", "red and black", or specific hex codes]
-- Background image: [Attach if you have one, or describe what you'd like]
+- Background image: [Please attach vertical image for background of sharable instagram story graphic]
 
 PRICING:
-- [ ] Single Show ($25)
-- [ ] Monthly Tour Package ($25/month)
+- [ ] Single Show/Tour Link ($100/month for which link is active)
+- [ ] Monthly Tour Package (Setlist Sequence will provide quote in response to the details of this email)
 
 Additional notes or special requests:
 [Any other details you'd like to include]
@@ -42,7 +42,7 @@ Additional notes or special requests:
 Thanks!
 [Your name]`);
     
-    window.location.href = `mailto:jimmyshultz3@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:setlistsequence@gmail.com?subject=${subject}&body=${body}`;
   };
 
   return (
