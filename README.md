@@ -1,173 +1,204 @@
-# Setlist Creator
+# Setlist Sequence
 
-A responsive web application for fans to help artists select and arrange songs for upcoming concerts. Built with Next.js, TypeScript, and Tailwind CSS.
+A responsive web application that allows fans to create and arrange setlists for their favorite artists' upcoming concerts. Artists can share custom links with their fans, who can then drag and drop songs to create the perfect setlist and share it on social media.
 
-## Features
+## 🎵 Features
 
-- **Responsive Design**: Works seamlessly on both desktop and mobile devices
-- **Paper-themed Background**: Setlist appears on a paper-like background for a realistic feel
-- **Drag and Drop Interface**: Intuitive drag and drop functionality to create and arrange setlists
-- **Song Bank**: Browse available songs to add to the setlist
-- **Customizable Song Limit**: Each artist can have a different maximum number of songs (defaults to 7)
-- **Instagram Share Feature**: Generate a beautiful shareable image for Instagram stories
-- **Artist Color Themes**: Each artist can have their own color scheme throughout the app
-- **Artist Images & Logos**: Support for artist background images and logos on shareable graphics
-- **Modern UI**: Clean, modern interface with smooth animations
-- **Artist-specific Links**: Support for URL parameters to create custom links for different artists/shows
+- **URL-Based Navigation**: Each artist and show has a unique URL (e.g., `/taylor-swift/taylor-nyc-2025`)
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **Paper-themed Interface**: Setlist appears on a realistic paper background with horizontal lines
+- **Drag and Drop**: Intuitive interface to move songs between the song bank and setlist
+- **7-Song Limit**: Enforced setlist limit with visual feedback and completion states
+- **Instagram Sharing**: Generate beautiful shareable images for social media
+- **Artist Branding**: Custom color themes and branding for each artist
+- **Real-time Feedback**: Progress indicators and disabled states for better UX
+- **Optimized Performance**: Fast compilation with Turbopack and SWC optimizations
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18.0 or later
-- npm or yarn
+- npm (comes with Node.js)
 
 ### Installation
 
-1. Clone the repository:
+1. **Clone the repository:**
 ```bash
-git clone https://github.com/yourusername/setlist-creator.git
-cd setlist-creator
+git clone https://github.com/yourusername/setlist_creator.git
+cd setlist_creator
 ```
 
-2. Install dependencies:
+2. **Install dependencies:**
 ```bash
 npm install
-# or
-yarn install
 ```
 
-3. Run the development server:
+3. **Start the development server:**
 ```bash
 npm run dev
-# or
-yarn dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+4. **Open your browser:**
+   - Navigate to [http://localhost:3000](http://localhost:3000)
+   - Or try a specific artist/show: [http://localhost:3000/taylor-swift/taylor-nyc-2025](http://localhost:3000/taylor-swift/taylor-nyc-2025)
 
-## Deployment
+## 🌐 URL Structure
 
-### Deploying to Vercel
-
-This project includes a GitHub workflow to automatically deploy to Vercel whenever changes are pushed to the main branch.
-
-#### Setup
-
-1. Create a Vercel account and project:
-   - Sign up at [vercel.com](https://vercel.com) if you don't have an account
-   - Import your GitHub repository to create a new project
-   - Complete the initial setup but don't worry about the build settings (they'll be handled by the workflow)
-
-2. Get your Vercel tokens and IDs:
-   - Vercel Organization ID: Find in Vercel Dashboard → Settings → General → Your Organization ID
-   - Vercel Project ID: Find in Vercel Dashboard → Your Project → Settings → General → Project ID
-   - Vercel Token: Create at Vercel Dashboard → Settings → Tokens
-
-3. Add secrets to your GitHub repository:
-   - Go to your GitHub repository → Settings → Secrets and variables → Actions
-   - Add the following secrets:
-     - `VERCEL_ORG_ID`: Your Vercel Organization ID
-     - `VERCEL_PROJECT_ID`: Your Vercel Project ID
-     - `VERCEL_TOKEN`: Your Vercel API token
-
-4. Push to the `main` branch:
-   - The GitHub workflow will automatically deploy your application to Vercel
-   - You can also manually trigger the workflow from the Actions tab in your GitHub repository
-
-Once deployed, your application will be available at the URL provided by Vercel, typically in the format: `https://your-project-name.vercel.app`
-
-## Usage
-
-1. Browse the available songs in the Song Bank
-2. Drag songs from the bank to the setlist on the right
-3. Rearrange songs in your setlist by dragging them
-4. Remove songs from your setlist by dragging them back to the song bank
-5. Once your setlist is complete, click "Share on Instagram" to generate a shareable image
-
-## Instagram Sharing Feature
-
-The app allows users to create beautiful shareable images for Instagram stories:
-
-- Click "Share on Instagram" after completing your setlist
-- The generated image includes the artist's name, event details, and your selected songs
-- Download the image or copy it directly to your clipboard
-- Images automatically use the artist's color scheme
-- If available, the artist's background image and logo will be included
-
-### Adding Artist Images and Logos
-
-To add custom artist visuals:
-
-1. For background images, add a JPEG file to `/public/images/` named after the artist (e.g., `gabrielle-grace.jpeg`)
-2. For artist logos, add a JPEG file to `/public/` named with the `-logo` suffix (e.g., `gabrielle-grace-logo.jpeg`)
-
-If images aren't available, the app will fall back to a color theme based on the artist's configuration.
-
-## URL Parameters
-
-The application supports artist-specific and show-specific URLs, allowing artists to share custom links with their fans:
+The application uses dynamic routing to create unique links for each artist and show:
 
 ```
-http://yourdomain.com/?artist=artist-id&show=show-id
+https://yourdomain.com/[artist]/[show]
 ```
 
-For example:
+### Available Routes
+
+Based on the current data structure:
+
+- `/taylor-swift/taylor-la-2025` - Taylor Swift at SoFi Stadium
+- `/taylor-swift/taylor-nyc-2025` - Taylor Swift at Madison Square Garden  
+- `/the-weeknd/weeknd-toronto-2025` - The Weeknd at Rogers Centre
+- `/beyonce/beyonce-houston-2025` - Beyoncé at NRG Stadium
+
+### Fallback Behavior
+
+- If an invalid artist/show combination is accessed, the app redirects to the first available artist/show
+- The home page (`/`) displays a landing page with links to all available setlist sequences
+
+## 🎨 How It Works
+
+1. **Artist shares a link** with their fans (e.g., `/taylor-swift/taylor-nyc-2025`)
+2. **Fans visit the link** and see the artist's song bank and empty setlist
+3. **Fans drag songs** from the bank to create their ideal 7-song setlist
+4. **Fans can reorder** songs within the setlist by dragging
+5. **Once complete**, fans can share their setlist on Instagram
+
+### User Interface
+
+- **Song Bank (Left)**: Available songs for the show
+- **Setlist (Right)**: Paper-themed area where fans build their 7-song setlist
+- **Progress Indicator**: Shows how many songs have been added (X/7)
+- **Completion Message**: Appears when setlist is complete
+- **Share Button**: Generates Instagram-ready image
+
+## 📁 Project Structure
+
 ```
-http://localhost:3000/?artist=taylor-swift&show=taylor-nyc-2025
-http://localhost:3000/?artist=the-weeknd&show=weeknd-toronto-2025
-http://localhost:3000/?artist=beyonce&show=beyonce-houston-2025
+setlist_creator/
+├── src/
+│   ├── app/
+│   │   ├── [artist]/
+│   │   │   └── [show]/
+│   │   │       └── page.tsx          # Dynamic setlist page
+│   │   ├── page.tsx                  # Landing page
+│   │   ├── layout.tsx                # Root layout
+│   │   └── globals.css               # Global styles
+│   ├── components/
+│   │   ├── Header.tsx                # App header
+│   │   ├── SongBank.tsx              # Song selection area
+│   │   ├── Setlist.tsx               # Setlist creation area
+│   │   └── Song.tsx                  # Individual song component
+│   ├── data/
+│   │   └── artists.json              # Artist and show data
+│   └── utils/
+│       └── artistDataHelper.ts       # Data access utilities
+├── public/
+│   └── images/                       # Artist images and logos
+├── next.config.ts                    # Optimized Next.js configuration
+└── package.json
 ```
 
-If no parameters are provided, or if the specified artist/show doesn't exist, the application will default to the first artist and show in the data.
+## 🛠 Configuration
 
-## Customization
+### Adding New Artists/Shows
 
-The application loads artist and show data from a JSON file. To customize:
+Edit `src/data/artists.json` to add new artists or shows:
 
-1. Edit the `src/data/artists.json` file to add or modify artists, shows, and songs
-2. Each artist can have multiple shows, and each show has its own song list
-3. Define a `maxSongs` value for each show to customize the setlist size
-4. Add a `colorTheme` object to each artist with `primary`, `secondary`, and `accent` colors
-5. Make sure to provide unique IDs for artists, shows, and songs
-
-Example artist configuration:
 ```json
 {
-  "id": "artist-id",
+  "id": "artist-slug",
   "name": "Artist Name",
   "colorTheme": {
     "primary": "from-blue-500 to-indigo-600",
-    "secondary": "blue-500",
+    "secondary": "blue-500", 
     "accent": "indigo-400"
   },
   "shows": [
     {
-      "id": "show-id",
-      "date": "June 15, 2025",
+      "id": "show-slug",
+      "date": "March 15, 2025",
       "venue": "Venue Name, City",
-      "maxSongs": 10,
-      "songs": [...]
+      "maxSongs": 7,
+      "songs": [
+        {
+          "id": "song-1",
+          "title": "Song Title",
+          "album": "Album Name"
+        }
+      ]
     }
   ]
 }
 ```
 
-## Technologies Used
+### Artist Branding
 
-- **Next.js**: React framework for server-rendered applications
-- **TypeScript**: Type-safe JavaScript
-- **Tailwind CSS**: Utility-first CSS framework
-- **dnd-kit**: Modern drag and drop library for React
-- **html2canvas**: For generating shareable images
+- **Background Images**: Add to `/public/images/artist-slug.jpeg`
+- **Logos**: Add to `/public/artist-slug-logo.jpeg`
+- **Color Themes**: Define in the artist's `colorTheme` object
 
-## License
+## 🚀 Deployment
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Vercel (Recommended)
 
-## Acknowledgments
+1. **Connect your repository** to Vercel
+2. **Set up environment variables** (if needed)
+3. **Deploy** - Vercel will automatically build and deploy
 
-- [dnd-kit](https://dndkit.com/) for the drag and drop functionality
-- [Tailwind CSS](https://tailwindcss.com/) for the styling
-- [Next.js](https://nextjs.org/) for the application framework
-- [html2canvas](https://html2canvas.hertzen.com/) for image generation
+The optimized Next.js configuration includes:
+- Turbopack for faster builds
+- SWC minification
+- Image optimization (WebP, AVIF)
+- Performance optimizations
+
+### Manual Deployment
+
+```bash
+npm run build
+npm start
+```
+
+## 🔧 Technologies
+
+- **[Next.js 15.3.1](https://nextjs.org/)** - React framework with App Router
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
+- **[Tailwind CSS 3.4.1](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[@dnd-kit](https://dndkit.com/)** - Modern drag and drop for React
+- **[html2canvas](https://html2canvas.hertzen.com/)** - Screenshot generation
+- **[Vercel Analytics](https://vercel.com/analytics)** - Performance monitoring
+
+## 📱 Browser Support
+
+- Chrome/Edge 88+
+- Firefox 85+
+- Safari 14+
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **[@dnd-kit](https://dndkit.com/)** for the excellent drag and drop functionality
+- **[Tailwind CSS](https://tailwindcss.com/)** for the utility-first styling approach
+- **[Next.js](https://nextjs.org/)** for the powerful React framework
+- **[Vercel](https://vercel.com/)** for seamless deployment and analytics
