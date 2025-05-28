@@ -34,7 +34,7 @@ CUSTOMIZATION (Optional):
 
 PRICING:
 - [ ] Single Show/Tour Link ($100/month for which link is active)
-- [ ] Monthly Tour Package (Setlist Sequence will provide quote in response to the details of this email)
+- [ ] Tour Package with multiple links (Setlist Sequence will provide quote in response to the details of this email)
 
 Additional notes or special requests:
 [Any other details you'd like to include]
@@ -256,13 +256,14 @@ Thanks!
             </p>
           </div>
           
-          <div className="flex justify-center">
-            <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-indigo-600 relative max-w-md">
-              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Single Show/Tour Package */}
+            <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-indigo-600 relative">
+              {/* <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
                   Most Popular
-                </span>
-              </div>
+                </span> */}
+              {/* </div>  */}
               
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Single Show/Tour</h3>
@@ -310,6 +311,60 @@ Thanks!
                   className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 rounded-lg hover:opacity-90 transition-opacity font-semibold"
                 >
                   Get Started
+                </button>
+              </div>
+            </div>
+
+            {/* Tour Package */}
+            <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-purple-600 relative">
+              
+              
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Tour Package</h3>
+                <div className="text-4xl font-bold text-gray-900 mb-4">
+                  Contact
+                  <span className="text-lg font-normal text-gray-600"> for pricing</span>
+                </div>
+                <p className="text-gray-600 mb-6">Multiple active links for various shows</p>
+                
+                <ul className="text-left space-y-3 mb-8">
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Multiple custom setlist sequences
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Different songs per show/venue
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Consistent branding across tour
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Volume discounts available
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Priority support & delivery
+                  </li>
+                </ul>
+                
+                <button
+                  onClick={handleEmailClick}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg hover:opacity-90 transition-opacity font-semibold"
+                >
+                  Contact Us
                 </button>
               </div>
             </div>
@@ -434,7 +489,7 @@ Thanks!
             </div>
             <div className="mt-8 pt-8 border-t border-gray-800">
               <p className="text-gray-400 text-sm">
-                © 2024 Setlist Sequence. All rights reserved.
+                © 2025 Setlist Sequence. All rights reserved.
               </p>
             </div>
           </div>
