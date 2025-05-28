@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Setlist Creator | Help Artists Choose Their Setlist",
+  title: "Setlist Sequence | Help Artists Choose Their Setlist",
   description: "Create and arrange setlists for your favorite artists' upcoming concerts with an easy-to-use drag and drop interface.",
   keywords: ["setlist", "concert", "music", "playlist", "drag and drop", "fan engagement"],
 };

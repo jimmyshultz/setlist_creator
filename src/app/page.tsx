@@ -7,10 +7,10 @@ export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleEmailClick = () => {
-    const subject = encodeURIComponent('Custom Setlist Creator Request');
+    const subject = encodeURIComponent('Custom Setlist Sequence Request');
     const body = encodeURIComponent(`Hi there!
 
-I'm interested in getting a custom setlist creator for my upcoming show(s). Here are the details:
+I'm interested in getting a custom setlist sequence for my upcoming show(s). Here are the details:
 
 ARTIST INFORMATION:
 - Artist/Band Name: [Your name here]
@@ -54,7 +54,7 @@ Thanks!
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Setlist Creator
+                  Setlist Sequence
                 </h1>
               </div>
             </div>
@@ -161,7 +161,7 @@ Thanks!
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Artists Love Setlist Creator
+              Why Artists Love Setlist Sequence
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Engage your fans like never before with interactive setlist creation
@@ -225,7 +225,7 @@ Thanks!
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Quick Setup</h3>
               <p className="text-gray-600">
-                Get your custom setlist creator up and running in 24-48 hours. Just send us your songs and preferences.
+                Get your custom setlist sequence up and running in 24-48 hours. Just send us your songs and preferences.
               </p>
             </div>
             
@@ -237,7 +237,7 @@ Thanks!
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Proven Results</h3>
               <p className="text-gray-600">
-                Artists report increased social media engagement and stronger fan connections when using setlist creators.
+                Artists report increased social media engagement and stronger fan connections when using setlist sequences.
               </p>
             </div>
           </div>
@@ -267,7 +267,7 @@ Thanks!
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Single Show/Tour</h3>
                 <div className="text-4xl font-bold text-gray-900 mb-4">
-                  $25
+                  $100
                   <span className="text-lg font-normal text-gray-600">/link/month</span>
                 </div>
                 <p className="text-gray-600 mb-6">Perfect for one-off shows or tours</p>
@@ -277,7 +277,7 @@ Thanks!
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    Custom branded setlist creator
+                    Custom branded setlist sequence
                   </li>
                   <li className="flex items-center">
                     <svg className="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,7 +325,7 @@ Thanks!
               See It In Action
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Check out these example setlist creators for different artists
+              Check out these example setlist sequences for different artists
             </p>
           </div>
           
@@ -400,7 +400,7 @@ Thanks!
             Ready to Engage Your Fans?
           </h2>
           <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-            Get your custom setlist creator and start building excitement for your next show
+            Get your custom setlist sequence and start building excitement for your next show
           </p>
           <button
             onClick={handleEmailClick}
@@ -416,7 +416,7 @@ Thanks!
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-4">
-              Setlist Creator
+              Setlist Sequence
             </h3>
             <p className="text-gray-400 mb-6">
               Empowering artists to connect with their fans through interactive setlist creation
@@ -434,7 +434,7 @@ Thanks!
             </div>
             <div className="mt-8 pt-8 border-t border-gray-800">
               <p className="text-gray-400 text-sm">
-                © 2024 Setlist Creator. All rights reserved.
+                © 2024 Setlist Sequence. All rights reserved.
               </p>
             </div>
           </div>

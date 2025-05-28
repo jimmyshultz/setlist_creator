@@ -359,7 +359,7 @@ const ShareableSetlist = React.forwardRef<HTMLDivElement, ShareableSetlistProps>
             textShadow: '0 2px 4px rgba(0,0,0,0.5)',
             letterSpacing: '0.5px',
           }}>
-            Created with Setlist Creator
+            Created with Setlist Sequence
           </p>
         </div>
       </div>

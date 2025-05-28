@@ -386,7 +386,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
       if (isMobile) {
         // On mobile, copy a text version (most mobile browsers don't support image clipboard)
         await navigator.clipboard.writeText(
-          `Check out my dream setlist for ${artistName}! Create your own at setlist-creator.vercel.app`
+          `Check out my dream setlist for ${artistName}! Create your own at setlistsequence.com`
         );
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
@@ -407,7 +407,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
       // Try text fallback even on desktop if the image clipboard fails
       try {
         await navigator.clipboard.writeText(
-          `Check out my dream setlist for ${artistName}! Create your own at setlist-creator.vercel.app`
+          `Check out my dream setlist for ${artistName}! Create your own at setlistsequence.com`
         );
         setCopySuccess(true);
         setTimeout(() => setCopySuccess(false), 2000);
@@ -441,7 +441,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
           console.log('Image sharing failed, falling back to text', imageShareError);
           await navigator.share({
             title: `My setlist for ${artistName}`,
-            text: `Check out my dream setlist for ${artistName}! Create your own at setlist-creator.vercel.app`
+            text: `Check out my dream setlist for ${artistName}! Create your own at setlistsequence.com`
           });
         }
       }
