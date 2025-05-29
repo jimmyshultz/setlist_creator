@@ -38,6 +38,12 @@ module.exports = {
         border: 'var(--border)',
         'paper-color': 'var(--paper-color)',
         'paper-shadow': 'var(--paper-shadow)',
+        // Brand Colors for Setlist Sequence
+        brand: {
+          primary: '#0029FF',      // Blue - Interactive elements, buttons, links
+          secondary: '#F9E793',    // Yellow - Background accents, highlights
+          tertiary: '#7F4A16',     // Brown - Text, borders, grounding elements
+        },
       },
     },
   },

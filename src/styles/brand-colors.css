@@ -1,0 +1,41 @@
+/**
+ * Brand color CSS custom properties for Setlist Sequence
+ * These can be used anywhere in CSS or inline styles
+ */
+
+:root {
+  /* Primary brand colors */
+  --brand-primary: #0029FF;     /* Blue - Interactive elements, buttons, links */
+  --brand-secondary: #F9E793;   /* Yellow - Background accents, highlights */
+  --brand-tertiary: #7F4A16;    /* Brown - Text, borders, grounding elements */
+  
+  /* Primary color variations */
+  --brand-primary-20: #0029FF33;
+  --brand-primary-30: #0029FF4D;
+  
+  /* Secondary color variations */
+  --brand-secondary-10: #F9E79310;
+  --brand-secondary-20: #F9E79333;
+  --brand-secondary-30: #F9E7934D;
+  --brand-secondary-40: #F9E79366;
+  
+  /* Tertiary color variations */
+  --brand-tertiary-60: #7F4A1699;  /* Light text */
+  --brand-tertiary-70: #7F4A16B3;  /* Body text */
+  --brand-tertiary-80: #7F4A16CC;  /* Medium text */
+  
+  /* Semantic color aliases for easier usage */
+  --color-interactive: var(--brand-primary);
+  --color-interactive-hover: var(--brand-tertiary);
+  --color-background-accent: var(--brand-secondary);
+  --color-text-primary: var(--brand-tertiary);
+  --color-text-secondary: var(--brand-tertiary-70);
+  --color-text-light: var(--brand-tertiary-60);
+  --color-border: var(--brand-tertiary);
+}
+
+/* Usage examples:
+ * background-color: var(--brand-primary);
+ * color: var(--color-text-primary);
+ * border-color: var(--color-border);
+ */ 
