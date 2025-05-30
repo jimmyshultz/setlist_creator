@@ -27,8 +27,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
 }) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [copySuccess, setCopySuccess] = useState(false);
-  const [clipboardSupported, setClipboardSupported] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const shareableRef = useRef<HTMLDivElement>(null);
   const [logoPreloaded, setLogoPreloaded] = useState<boolean>(false);
@@ -114,43 +112,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
     return colorTheme.primary;
   };
   
-  // Get secondary color class
-  const getSecondaryColorClass = () => {
-    return colorTheme.secondary || 'indigo-600';
-  };
-  
-  // Get secondary color value
-  const getSecondaryColor = () => {
-    // Convert tailwind class to actual color
-    switch (colorTheme.secondary) {
-      case 'red-600': return '#dc2626';
-      case 'red-700': return '#b91c1c';
-      case 'blue-500': return '#3b82f6';
-      case 'yellow-600': return '#ca8a04';
-      case 'indigo-600': return '#4f46e5';
-      default: return '#4f46e5'; // Default to indigo-600
-    }
-  };
-  
-  // Check if clipboard API is supported
-  useEffect(() => {
-    if (isMobile) {
-      // On mobile, we check for basic clipboard support for text
-      setClipboardSupported(
-        typeof navigator !== 'undefined' && 
-        navigator.clipboard !== undefined &&
-        typeof navigator.clipboard.writeText === 'function'
-      );
-    } else {
-      // On desktop, we check for full clipboard API with image support
-      setClipboardSupported(
-        typeof navigator !== 'undefined' && 
-        navigator.clipboard !== undefined &&
-        typeof navigator.clipboard.write === 'function'
-      );
-    }
-  }, [isMobile]);
-
   // Preload the artist logo
   useEffect(() => {
     if (isOpen) {
@@ -313,7 +274,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
     if (!isOpen) {
       setTimeout(() => {
         setImageUrl(null);
-        setCopySuccess(false);
       }, 300);
     }
   }, [isOpen]);
@@ -379,44 +339,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
     }
   };
   
-  const copyImageToClipboard = async () => {
-    if (!imageUrl || !clipboardSupported) return;
-    
-    try {
-      if (isMobile) {
-        // On mobile, copy a text version (most mobile browsers don't support image clipboard)
-        await navigator.clipboard.writeText(
-          `Check out my dream setlist for ${artistName}! Create your own at setlistsequence.com`
-        );
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000);
-      } else {
-        // Desktop clipboard method for image copying
-        const response = await fetch(imageUrl);
-        const blob = await response.blob();
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            [blob.type]: blob
-          })
-        ]);
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000);
-      }
-    } catch (error) {
-      console.error('Error copying to clipboard:', error);
-      // Try text fallback even on desktop if the image clipboard fails
-      try {
-        await navigator.clipboard.writeText(
-          `Check out my dream setlist for ${artistName}! Create your own at setlistsequence.com`
-        );
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000);
-      } catch (fallbackError) {
-        console.error('Even text clipboard failed:', fallbackError);
-      }
-    }
-  };
-
   // Handle native mobile share if available
   const handleNativeShare = async () => {
     if (!imageUrl) return;
@@ -562,26 +484,6 @@ const ShareModal: React.FC<ShareModalProps> = ({
             </svg>
             {isMobile ? 'Save Image' : 'Download for Instagram'}
           </button>
-          
-          {/* Copy to clipboard button - shown conditionally */}
-          {clipboardSupported && (
-            <button
-              onClick={copyImageToClipboard}
-              disabled={!imageUrl || isLoading}
-              className={`px-4 py-2 rounded-lg ${
-                imageUrl && !isLoading 
-                  ? `bg-white border border-${getSecondaryColorClass()} text-${getSecondaryColorClass()}` 
-                  : 'bg-gray-200 text-gray-500 border border-gray-300'
-              } flex items-center gap-2 transition-all duration-200`}
-              style={imageUrl && !isLoading && usesCustomColors ? 
-                { borderColor: getSecondaryColor(), color: getSecondaryColor() } : undefined}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              {copySuccess ? 'Copied!' : isMobile ? 'Copy Link' : 'Copy to Clipboard'}
-            </button>
-          )}
           
           {/* Native share button - mobile only */}
           {isMobile && imageUrl && typeof navigator !== 'undefined' && 'share' in navigator && (

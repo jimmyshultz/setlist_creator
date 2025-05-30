@@ -1,9 +1,9 @@
+/* Import brand colors */
+@import '../styles/brand-colors.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import brand colors */
-@import '../styles/brand-colors.css';
 
 :root {
   --background: #f5f5f5;
